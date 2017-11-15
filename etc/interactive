@@ -1,0 +1,28 @@
+# Python startup file to enable readline when running python interactively.
+# bin/activate will set PYTHONSTARTUP to this file.
+
+
+try:
+    # try importing readlin first so there is nothing to clean up if it fails.
+    import readline
+
+    import atexit
+    import os
+
+    # tab completion
+    readline.parse_and_bind("tab: complete")
+
+    # history file
+    histfile = os.path.join(os.environ["HOME"], ".pythonhistory")
+    try:
+        readline.read_history_file(histfile)
+    except IOError:
+        pass
+    atexit.register(readline.write_history_file, histfile)
+
+    # cleanup namespace
+    del atexit, os, histfile, readline
+
+
+except ImportError:
+    pass  # don't add support if module isn't there.
