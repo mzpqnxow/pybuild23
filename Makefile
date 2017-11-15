@@ -7,7 +7,10 @@ PYBUILD := ./pybuild
 PROJECT_FILES := etc packages pybuild .gitignore examples/Makefile
 COPY_FILES := etc packages pybuild examples/Makefile venv
 
-all: $(VENV_DIR)
+
+all: python2
+
+python2: $(VENV_DIR)
 	@echo "Executing pybuild (`basename $(PYBUILD)` -p $(PYTHON) $(VENV_DIR))"
 	@$(PYBUILD) -p $(PYTHON) $(VENV_DIR)
 
@@ -89,3 +92,5 @@ new:
 test:
 	echo $(ROOT_DIR)
 	echo $(PROJECT_FILES)
+
+.PHONY:	python2 python3 test new copy rebuild clean
