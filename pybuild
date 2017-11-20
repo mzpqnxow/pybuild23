@@ -185,8 +185,6 @@ def main(argc, argv):
             '{0}{1}'.format(appname, pyversion),
             os.path.join('packages', 'bin', '{0}'.format(appname)))
 
-    raw_input('done')
-
     cwd = os.path.dirname(os.path.abspath(__file__))
 
     ini_load_path = os.path.join(cwd, 'etc/%s' % args.inifile)
