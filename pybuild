@@ -1,13 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from __future__ import print_function
-from contextlib import contextmanager
-from errno import ENOENT, ENOTEMPTY, EEXIST
-import os
-import pwd
-from shutil import copy, rmtree
-import subprocess as sp
-from time import sleep
 """
 Build a Python virtual environment without setuptools, virtualenv and
 other dependencies. Useful when building on "fresh" systems or those
@@ -21,6 +13,14 @@ Copyright (C) 2018
     David Marker <dave@freedave.net>
 Please see LICENSE or LICENSE.md for terms
 """
+from __future__ import print_function
+from contextlib import contextmanager
+from errno import ENOENT, ENOTEMPTY, EEXIST
+import os
+import pwd
+from shutil import copy, rmtree
+import subprocess as sp
+from time import sleep
 
 # Basic required directories for a virtualenv
 VENV_DIRS = set(['lib', 'bin', 'include'])
@@ -67,6 +67,7 @@ def pushd(directory):
 
 
 def force_symlink(file1, file2):
+    """ Be forceful about creating a symlink """
     try:
         os.symlink(file1, file2)
     except OSError, err:
@@ -142,7 +143,8 @@ def pip(pip_exe, ini, require, cwd):
     sp.check_call([pip_exe, 'install', '--pre', '-I', '-r', req], env=basic_env(cwd))
 
 
-def main(argc, argv):
+def main():
+    """Let it begin"""
     # For 2.[67] compatibility
     from optparse import OptionParser
     global DEFAULT_VENV_BASE_PYTHON
@@ -223,10 +225,10 @@ def main(argc, argv):
             pip('bin/pip', ini_load_path, PKG_REQUIREMENT_FILEPATHS, cwd)
 
     except RuntimeError as err:
-        optparser.error('%s Destination virtualenv directory and Python intrpreter must both exist !!' %
-                        (str(err)))
+        optparser.error(
+            '%s Destination virtualenv directory and Python intrpreter must both exist !!' % (
+                str(err)))
 
 
 if __name__ == '__main__':
-    from sys import argv as ARGV
-    main(len(ARGV), ARGV)
+    main()
