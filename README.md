@@ -3,7 +3,7 @@ Streamline Python venv creation w/Python 2.6, 2.7 and 3.x using a simple make co
 
 ## Basic usage
 
-Just run `make` or `make python2` for a Python 2 virtual environment, use `make python3` for a Python 3 virtual environment
+Just run `make` or `make python2` for a Python 2 virtual environment, use `make python3` for a Python 3 virtual environment. Once the environment is built, use `source venv/bin/activate` and `deactivate` as usual
 
 ## Advanced usage
 
