@@ -13,8 +13,13 @@ Build a Python virtual environment without setuptools, virtualenv and
 other dependencies. Useful when building on "fresh" systems or those
 which for some reason do not have the required dependencies available
 
-Copyright (C) 2017 copyright /at/ mzpqnxow.com under the MIT license
-Please see COPYRIGHT for terms
+Support Python 2.6, Python 2.7, and Python 3
+See Makefile ...
+
+Copyright (C) 2018
+    Adam Greene <copyright@mzpqnxow.com>
+    David Marker <dave@freedave.net>
+Please see LICENSE or LICENSE.md for terms
 """
 
 # Basic required directories for a virtualenv
