@@ -9,6 +9,7 @@ If you are starting with an empty project and nothing yet in source control, try
 ### Python 3 based virtualenv
 
 ```
+$ $EDITOR venv/requirements.txt [add your dependencies into the file]
 $ make python3
 $ rm -rf .git
 ```
@@ -17,10 +18,31 @@ $ rm -rf .git
 ### Python 2 based virtualenv (default)
 
 ```
+$ $EDITOR venv/requirements.txt [add your dependencies into the file]
 $ make
 $ rm -rf .git
 ```
 
 ## If you want to "install" pybuild23 into an existing (preferably freshly created) git repository
 
-`$ make new REPO=ssh://github.com/yourname/yourproject`
+First, you should be careful. If your repository already has files in it and there is a name collision with pybuild23 files (i.e. venv/, Makefile, etc) you could end up with things overwritten. You should really start with a fresh repository, else manually copy pybuild23 into the existing repository
+
+OK, with that out of the way...
+
+```
+$ make new REPO=ssh://github.com/yourname/yourproject
+$ cd ../yourproject
+$ $EDITOR venv/requirements.txt [add your dependencies into the file]
+```
+
+## If you want to "install" pybuild23 into an existing project that is already checked out on your local filesystem
+
+```
+$ cd /your/checkedout/repo
+$ git clone https://github.com/mzpqnxow/pybuild23
+$ cp -r pybuild23/{venv,Makefile,packages,etc} .
+$ rm -rf pybuild23
+$ git add venv Makefile packages etc
+$ git commit venv Makefile packages etc
+$ git push
+``` 
