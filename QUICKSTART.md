@@ -12,6 +12,7 @@ If you are starting with an empty project and nothing yet in source control, try
 $ $EDITOR venv/requirements.txt [add your dependencies into the file]
 $ make python3
 $ rm -rf .git
+$ [start your development and use git as usual]
 ```
 
 
@@ -21,6 +22,7 @@ $ rm -rf .git
 $ $EDITOR venv/requirements.txt [add your dependencies into the file]
 $ make
 $ rm -rf .git
+$ [start your development and use git as usual]
 ```
 
 ## If you want to "install" pybuild23 into an existing (preferably freshly created) git repository
