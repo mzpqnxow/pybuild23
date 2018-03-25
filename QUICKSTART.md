@@ -4,15 +4,20 @@ Skip the README and get started
 
 ## Starting a fresh project
 
-If you are started with an empty project and nothing in source control, try this
+If you are starting with an empty project and nothing yet in source control, try this
 
 ### Python 3 based virtualenv
 
-`$ make python3`
+```$ make python3
+$ rm -rf .git
+```
+
 
 ### Python 2 based virtualenv (default)
 
-`$ make`
+```$ make
+$ rm -rf .git
+```
 
 ## If you want to "install" pybuild23 into an existing (preferably freshly created) git repository
 
