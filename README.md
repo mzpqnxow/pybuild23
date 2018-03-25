@@ -19,4 +19,5 @@ Place your dependencies in venv/requirements.txt. These will be added when `make
 
 ## Credits
 
-Concept and implementation originally by David Marker, Python 3 support and `make new` target added by Adam Greene. See LICENSE.
+* Concept and original implementation by David Marker
+* Re-implementation, Python3 support, `make new` target by Adam Greene. See LICENSE.
