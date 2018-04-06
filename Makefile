@@ -1,6 +1,7 @@
 ROOT_DIR:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
-PYTHON = /usr/bin/python
-PYTHON3 = /usr/bin/python3
+PYTHON = `which python2`
+PYTHON3 = `which python3`
+RUNNING_USER = `whoami`
 VENV_DIR = venv/
 RM_RF := /bin/rm -rf
 PYBUILD := ./pybuild
@@ -24,8 +25,17 @@ $(VENV_DIR):
 	@echo "----"
 	@mkdir -p $(VENV_DIR)
 
-clean:
-	$(RM_RF) $(VENV_DIR)/bin $(VENV_DIR)/lib $(VENV_DIR)/include $(VENV_DIR)/pip-selfcheck.json $(VENV_DIR)/lib64 $(VENV_DIR)/local
+check_root:
+	@[ $(RUNNING_USER) != "root" ] || (echo Disallowing clean as root user; /bin/false)
+
+clean: check_root
+	$(RM_RF) $(VENV_DIR)/bin \
+                 $(VENV_DIR)/lib \
+                 $(VENV_DIR)/include \
+                 $(VENV_DIR)/pip-selfcheck.json \
+                 $(VENV_DIR)/lib64 \
+                 $(VENV_DIR)/local \
+                 $(VENV_DIR)/etc
 
 rebuild: clean all
 
