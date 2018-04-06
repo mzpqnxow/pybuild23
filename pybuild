@@ -20,6 +20,7 @@ import os
 import pwd
 from shutil import copy, rmtree
 import subprocess as sp
+import sys
 from time import sleep
 
 # Basic required directories for a virtualenv
@@ -30,10 +31,23 @@ INI_FILES = set(['.pip.ini', '.interactive'])
 PKG_REQUIREMENT_FILEPATHS = set(['requirements.txt',
                                  'etc/requirements.txt'])
 
-# By default, use the 'system python'
-DEFAULT_VENV_BASE_PYTHON2 = '/usr/bin/python2'
-DEFAULT_VENV_BASE_PYTHON3 = '/usr/bin/python3'
-DEFAULT_VENV_BASE_PYTHON = DEFAULT_VENV_BASE_PYTHON2
+
+def which(program):
+    """Emulate the UNIX `which` command, trusting the user's environment"""
+    def is_exe(fpath):
+        """check if a file is executable for the current user"""
+        return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
+    if os.sep in program:
+        if is_exe(program):
+            return program
+    else:
+        for search_path in os.environ['PATH'].split(os.path.pathsep):
+            search_path = search_path.strip('"')
+            exe_file = os.path.join(search_path, program)
+            if is_exe(exe_file):
+                return exe_file
+    return None
+
 
 def basic_env(cwd):
     """ Provide a clean environment with bare essentials """
@@ -143,11 +157,38 @@ def pip(pip_exe, ini, require, cwd):
     sp.check_call([pip_exe, 'install', '--pre', '-I', '-r', req], env=basic_env(cwd))
 
 
+def environment_sanity_check():
+    """Sanity check the environment, make sure it is supported"""
+
+    def check_platform():
+        """Most UNIX operating systems are supported, Windows is explicitly NOT supported"""
+        if sys.platform.startswith('win'):
+            print('Unsupported platform {}'.format(sys.platform))
+            raise RuntimeError(
+                'Windows is not supported for several reasons. Pull request please')
+
+    def check_venv():
+        """Discourage use of pybuild23 when in a virtual environment"""
+        venv = (hasattr(sys, 'real_prefix') or (
+            hasattr(sys, 'base_prefix') and sys.base_prefix != sys.prefix))
+        if venv is True:
+            raise RuntimeError(
+                'Please do not run pybuild23 from a virtual environment, use deactivate first')
+
+    check_platform()
+    check_venv()
+
+
 def main():
     """Let it begin"""
     # For 2.[67] compatibility
     from optparse import OptionParser
-    global DEFAULT_VENV_BASE_PYTHON
+    default_venv_base_python2 = which('python2')
+    default_venv_base_python3 = which('python3')
+    default_venv_base_python = default_venv_base_python2
+
+    environment_sanity_check()
+
     optparser = OptionParser('usage: %prog [options] <destination>')
 
     optparser.add_option('-p',
@@ -155,7 +196,7 @@ def main():
                          action='store',
                          type='string',
                          dest='python',
-                         default=DEFAULT_VENV_BASE_PYTHON,
+                         default=default_venv_base_python,
                          help='specify the full path to python')
     optparser.add_option('-d', '--destroy',
                          action='store_true',
@@ -181,10 +222,14 @@ def main():
         optparser.error('must specify destination')
 
     if args.use_python3:
-        DEFAULT_VENV_BASE_PYTHON = DEFAULT_VENV_BASE_PYTHON3
+        if default_venv_base_python3 is None:
+            raise RuntimeError('no python3 in $PATH')
+        default_venv_base_python = default_venv_base_python3
         pyversion = 3
     else:
-        DEFAULT_VENV_BASE_PYTHON = DEFAULT_VENV_BASE_PYTHON2
+        if default_venv_base_python2 is None:
+            raise RuntimeError('no python2 in $PATH')
+        default_venv_base_python = default_venv_base_python2
         pyversion = 2
 
     for appname in ('virtualenv', 'easy_install', 'pip'):
@@ -194,7 +239,7 @@ def main():
 
     cwd = os.path.dirname(os.path.abspath(__file__))
 
-    ini_load_path = os.path.join(cwd, 'etc/%s' % args.inifile)
+    ini_load_path = os.path.join(cwd, 'etc/{}'.format(args.inifile))
     virtualenv_run_path = os.path.join(cwd, 'packages/bin/virtualenv')
     interactive_load_path = os.path.join(cwd, 'etc/interactive')
 
@@ -226,7 +271,7 @@ def main():
 
     except RuntimeError as err:
         optparser.error(
-            '%s Destination virtualenv directory and Python intrpreter must both exist !!' % (
+            '{} Destination virtualenv directory and Python intrpreter must both exist !!'.format(
                 str(err)))
 
 
