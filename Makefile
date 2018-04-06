@@ -1,3 +1,17 @@
+#
+# Makefile for pybuild23
+#
+# Usage:
+#   $ make <-- will build for Python2 by default
+#   $ make python2
+#   $ make python3
+#   $ make clean
+#   $ make rebuild
+#   $ make new REPO=https://github.com/someuser/someproject
+#
+# See the README.md for more details
+#
+
 ROOT_DIR:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 PYTHON = `which python2`
 PYTHON3 = `which python3`
@@ -29,13 +43,16 @@ check_root:
 	@[ $(RUNNING_USER) != "root" ] || (echo Disallowing clean as root user; /bin/false)
 
 clean: check_root
-	$(RM_RF) $(VENV_DIR)/bin \
+	@$(RM_RF) $(VENV_DIR)/bin \
                  $(VENV_DIR)/lib \
                  $(VENV_DIR)/include \
                  $(VENV_DIR)/pip-selfcheck.json \
                  $(VENV_DIR)/lib64 \
                  $(VENV_DIR)/local \
-                 $(VENV_DIR)/etc
+                 $(VENV_DIR)/etc \
+                 $(VENV_DIR)/.pip.ini \
+                 $(VENV_DIR)/.interactive && \
+                 echo Cleaned virtual environment \!\!
 
 rebuild: clean all
 
@@ -103,4 +120,4 @@ test:
 	echo $(ROOT_DIR)
 	echo $(PROJECT_FILES)
 
-.PHONY:	python2 python3 test new copy rebuild clean
+.PHONY:	python2 python3 test new copy rebuild clean check_root
