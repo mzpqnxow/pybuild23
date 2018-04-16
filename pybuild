@@ -34,12 +34,16 @@ PKG_REQUIREMENT_FILEPATHS = set(['requirements.txt',
 DEFAULT_VENV_BASE_PYTHON2 = '/usr/bin/python2'
 DEFAULT_VENV_BASE_PYTHON3 = '/usr/bin/python3'
 DEFAULT_VENV_BASE_PYTHON = DEFAULT_VENV_BASE_PYTHON2
+PYVERSION = 2
 
 def basic_env(cwd):
     """ Provide a clean environment with bare essentials """
+    global PYVERSION
     pent = pwd.getpwuid(os.getuid())
     env = dict()
-    env['PYTHONPATH'] = '%s/packages/lib/python2.6/site-packages/' % cwd
+    # env['PYTHONPATH'] = '%s/packages/lib/python2.6/site-packages/' % cwd
+    # env['PYTHONPATH'] = '%s/packages/lib/python3.5/site-packages/' % cwd
+    env['PYTHONPATH'] = '{}/packages/lib/python{}/site-packages/'.format(cwd, PYVERSION)
     env['HOME'] = pent.pw_dir
     env['SHELL'] = pent.pw_shell
     env['LOGNAME'] = pent.pw_name
@@ -147,7 +151,7 @@ def main():
     """Let it begin"""
     # For 2.[67] compatibility
     from optparse import OptionParser
-    global DEFAULT_VENV_BASE_PYTHON
+    global DEFAULT_VENV_BASE_PYTHON, PYVERSION
     optparser = OptionParser('usage: %prog [options] <destination>')
 
     optparser.add_option('-p',
@@ -182,14 +186,14 @@ def main():
 
     if args.use_python3:
         DEFAULT_VENV_BASE_PYTHON = DEFAULT_VENV_BASE_PYTHON3
-        pyversion = 3
+        PYVERSION = 3
     else:
         DEFAULT_VENV_BASE_PYTHON = DEFAULT_VENV_BASE_PYTHON2
-        pyversion = 2
+        PYVERSION = 2
 
     for appname in ('virtualenv', 'easy_install', 'pip'):
         force_symlink(
-            '{0}{1}'.format(appname, pyversion),
+            '{0}{1}'.format(appname, PYVERSION),
             os.path.join('packages', 'bin', '{0}'.format(appname)))
 
     cwd = os.path.dirname(os.path.abspath(__file__))
