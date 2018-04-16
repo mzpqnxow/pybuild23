@@ -1,0 +1,34 @@
+#############
+## Python
+#############
+
+*.py[co]
+*.json
+*.pkl
+*.~*
+
+# Packages
+*.egg
+*.egg-info
+dist/
+build/
+eggs/
+parts/
+var/
+sdist/
+develop-eggs/
+.installed.cfg
+__pycache__/
+test/__pycache__
+
+# virtualenv
+venv/
+
+# Unit test / coverage reports
+.coverage
+.tox
+
+# project specific
+APPLICATION_NAME/__pycache__/
+APPLICATION_NAME/doc/
+APPLICATION_NAME/pythonhosted.org/*.zip

@@ -1,0 +1,10 @@
+
+    usage: APPLICATION_NAME [-option]
+
+    optional arguments:
+      -h, --help            show this help message
+      -l, --license         show license
+      -q, --quiet           no banner
+      -V, --version         show version
+
+    No arguments ...

@@ -1,0 +1,242 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ChangeLog &mdash; easysetup 0.0.19 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.0.19',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="easysetup 0.0.19 documentation" href="index.html" />
+    <link rel="next" title="License" href="license.html" />
+    <link rel="prev" title="Reference" href="reference.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="license.html" title="License"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="reference.html" title="Reference"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">easysetup 0.0.19 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="changelog">
+<h1>ChangeLog<a class="headerlink" href="#changelog" title="Permalink to this headline">¶</a></h1>
+<p>0.0.19 2015-05-14</p>
+<div class="highlight-python"><div class="highlight"><pre>Add .json to .gitignore.
+    Improved pkl compatiblity btw py2 and py3.
+    Code cleanup in common.py.
+</pre></div>
+</div>
+<p>0.0.18 2015-05-13</p>
+<div class="highlight-python"><div class="highlight"><pre>Added PyPy and PyPy3 to .travis.yml.
+    Corrected some encoding issues.
+    Simplified some code.
+    Added setup_cxf.py.
+    Export Shippable test results to a file to make them visible from
+    the management page.
+    Simplified DATA_FILES in setup_py2exe.py.
+</pre></div>
+</div>
+<p>0.0.17 2015-05-09</p>
+<div class="highlight-python"><div class="highlight"><pre>Add support for Appveyor.
+</pre></div>
+</div>
+<p>0.0.16 2015-05-08</p>
+<div class="highlight-python"><div class="highlight"><pre>Changed data format to json.
+    Improved Unicode compliance.
+    Corrected yml files for Travis and Shippable.
+    Replaced unicode() for .decode().
+    Added comment_import_for_py2exe() and
+    uncomment_import_for_py2exe() in setup_utils.py to solve
+    py2exe unicode errors (for the moment).
+</pre></div>
+</div>
+<p>0.0.15 2015-05-04</p>
+<div class="highlight-python"><div class="highlight"><pre>Correct change_sphinx_theme().
+    Correct requirements-dev.txt.
+    Clarify some messages.
+</pre></div>
+</div>
+<p>0.0.14 2015-05-02</p>
+<div class="highlight-python"><div class="highlight"><pre>Update .gitignore.
+</pre></div>
+</div>
+<p>0.0.13 2015-05-02</p>
+<div class="highlight-python"><div class="highlight"><pre>Update usage template.
+    Correct index.html.
+    Update build.cmd.
+</pre></div>
+</div>
+<p>0.0.12 2015-05-02</p>
+<div class="highlight-python"><div class="highlight"><pre>Include missing file in git (APPLICATION_NAME.py).
+</pre></div>
+</div>
+<p>0.0.11 2015-05-02</p>
+<div class="highlight-python"><div class="highlight"><pre>Correct README.rst.
+    Correct upd_usage_in_readme() text alignment.
+</pre></div>
+</div>
+<p>0.0.10 2015-05-02</p>
+<div class="highlight-python"><div class="highlight"><pre>Recreates reference.rst in the doc directory on each build. Can be disabled
+    inside build.cmd by remarking the REBUILD_REFERENCE=YES line.
+    Checks PEP8 (flake8) and Py3 compatibility (pylint --py3k).
+    Py3 compatibility check can be disabled inside build.cmd by remarking the
+    CHECK_PY3_COMPATIBILITY=YES line.
+    Code cleanup.
+    Change sphinx theme when in RTD.
+</pre></div>
+</div>
+<p>0.0.9 2015-04-26</p>
+<div class="highlight-python"><div class="highlight"><pre>Remove Sphinx upload section from setup.cfg.
+    Update README.rst.
+    Save answers (DEFAULT_AUTHOR, DEFAULT_EMAIL, DEFAULT_URL, DEFAULT_VERSION
+    and DEFAULT_LICENSE) for future use in other applications.
+    py2exe build now works with Py3 (tested with Anaconda).
+</pre></div>
+</div>
+<p>0.0.8 2015-04-26</p>
+<div class="highlight-python"><div class="highlight"><pre>Add files and dirs to .gitignore.
+    Correct setup_py2exe.py to include doc if exists.
+    Add warning to py2exe build.
+    Add ERRORLEVEL check when publishing dists to PyPI.
+</pre></div>
+</div>
+<p>0.0.6 2015-04-26</p>
+<div class="highlight-python"><div class="highlight"><pre>Add dumb, msi and rpm options to build.cmd.
+    Update README.rst.
+    Correct os.linesep to &#39;\n&#39; in update_copyright() (setup-utils.py).
+</pre></div>
+</div>
+<p>0.0.5 2015-04-25</p>
+<div class="highlight-python"><div class="highlight"><pre>Improve Py3 compatibility.
+    Update rst files to improve docs.
+    Add defaults to setup questions.
+    Add build.cmd usage info.
+    Update requirements.txt and requirements-dev.txt.
+    Add delay between templates copying and renaming application directory.
+</pre></div>
+</div>
+<p>0.0.4 2015-04-20</p>
+<div class="highlight-python"><div class="highlight"><pre>Update README.rst.
+Updates usage section in README.rst based on usage.txt (which resides
+    inside your application directory).
+</pre></div>
+</div>
+<p>0.0.3 2015-04-20</p>
+<div class="highlight-python"><div class="highlight"><pre>Update README.rst.
+</pre></div>
+</div>
+<p>0.0.2 2015-04-20</p>
+<div class="highlight-python"><div class="highlight"><pre>Remove rst2pdf module due to Py3 incompatibility.
+Add To do list to README.rst.
+</pre></div>
+</div>
+<p>0.0.1 2015-04-19</p>
+<div class="highlight-python"><div class="highlight"><pre>Create build.cmd to build source, egg, wheel, win, py2exe, cxf (still not
+    working), doc and run tests.
+Add PyPI and PyPItest uploads.
+Create single file for setup info (appinfo.py) that can be used by the
+    application itself.
+Create templates for Travis, Shippable and tox.
+Create template for development requirements (requirements-dev.txt).
+Create empty template for installation requirements (requirements.txt).
+Create template for git VCS exceptions (.gitignore).
+Create template for files to be included in the setup (MANIFEST.in).
+Create template for a README file (README.rst).
+Create template for wheel setup and Sphinx documentation upload (setup.cfg).
+Create option (-d) to copy templates to doc dir (ncludes option -r below).
+Create option (-r) to update doc\reference.rst.
+</pre></div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="reference.html"
+                        title="previous chapter">Reference</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="license.html"
+                        title="next chapter">License</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/changelog.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2009-2015, Joao Carlos Roseta Matos.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.3</a>
+      
+      |
+      <a href="_sources/changelog.txt"
+          rel="nofollow">Page source</a></li>
+    </div>
+
+    
+
+    
+  </body>
+</html>

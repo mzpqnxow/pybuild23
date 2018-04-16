@@ -1,0 +1,215 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>easysetup &mdash; easysetup 0.0.19 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.0.19',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="easysetup 0.0.19 documentation" href="index.html" />
+    <link rel="next" title="Reference" href="reference.html" />
+    <link rel="prev" title="Indices and tables" href="index.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="reference.html" title="Reference"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Indices and tables"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">easysetup 0.0.19 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="easysetup">
+<h1>easysetup<a class="headerlink" href="#easysetup" title="Permalink to this headline">¶</a></h1>
+<p>Helps creating a package distribution setup, that also runs tests, checkers and creates HTML and PDF documentation, for Windows users.</p>
+<div class="section" id="description-features-and-to-do">
+<h2>Description, features and To do<a class="headerlink" href="#description-features-and-to-do" title="Permalink to this headline">¶</a></h2>
+<p><strong>Description</strong></p>
+<p>Helps creating a package distribution setup, that also runs tests and creates HTML and PDF documentation, for Windows users.</p>
+<p>When running easysetup without options, everything on the current directory is moved to a _bak directory.</p>
+<p>After running easysetup, you can find a build.cmd in the current directory that should be run to build your application (execute build -h to see usage options).</p>
+<p>Before runnning build.cmd for the first time, you should execute</p>
+<div class="code bash highlight-python"><div class="highlight"><pre>$ pip install -r requirements-dev.txt
+</pre></div>
+</div>
+<p>to install it&#8217;s requirements.</p>
+<p><strong>Features:</strong></p>
+<ul class="simple">
+<li>Easy to use, just run easysetup from your application setup directory (it backups everything in current directory to _bak directory when run without options).</li>
+<li>Allows creating source, wheel, win (exe or msi), py2exe, egg, dumb (zip on windows, tar/ztar/gztar/zip on GNU Linux in the future) and rpm (on GNU Linux in the future) dists.</li>
+<li>All setup configuration is in one file (appinfo.py).</li>
+<li>Runs tests and creates HTML and PDF documentation (if you have them, of course).</li>
+<li>Can publish to PyPI (including documentation if exists) and PyPI tests.</li>
+<li>Creates index.html with redirection to RTD, to be used if preferred for hosting documentation.</li>
+<li>Creates templates for Travis, Shippable, AppVeyor and tox.</li>
+<li>Creates a template for development requirements.</li>
+<li>Creates a template for installation requirements.</li>
+<li>Creates a template for git VCS exceptions.</li>
+<li>Creates a template for files to be included in the setup.</li>
+<li>Creates a template for a README file.</li>
+<li>Creates a template for wheel setup and Sphinx documentation upload.</li>
+<li>Can create template files in the doc directory (assumes use of Sphinx and that the sphinx-quickstart command was already executed).</li>
+<li>Can create an updated reference.rst in the doc directory (assumes previous item with the autodoc extension).</li>
+<li>Updates usage section in README.rst based on usage.txt, if it exists inside your application directory.</li>
+<li>Saves answers (DEFAULT_AUTHOR, DEFAULT_EMAIL, DEFAULT_LICENSE, DEFAULT_URL and DEFAULT_VERSION) for future use in other applications.</li>
+<li>Recreates reference.rst in the doc directory on each build (can be disabled inside build.cmd by changing the REBUILD_REFERENCE=YES to other value).</li>
+<li>If the setup directory is empty then a main template file is created inside the application directory.</li>
+<li>Checks source code with flake8 and Py3 compatibility with pylint.</li>
+<li>Add URLs to README.rst for PyPI, PyPI documentation site and RTD.</li>
+<li>Collects all To do from py files into README.rst To do section.</li>
+</ul>
+<p><strong>To do</strong></p>
+<p>easysetup.py: Auto rebuild requirements.txt on each dist build.
+easysetup.py: CXF in Py2 and Py3
+easysetup.py: checks and error messages
+easysetup.py: Move build.cmd functionality to easysetup.py.</p>
+</div>
+<div class="section" id="installation-usage-and-options">
+<h2>Installation, usage and options<a class="headerlink" href="#installation-usage-and-options" title="Permalink to this headline">¶</a></h2>
+<p><strong>Installation</strong></p>
+<div class="code bash highlight-python"><div class="highlight"><pre>$ pip install easysetup
+</pre></div>
+</div>
+<p><strong>Usage</strong></p>
+<div class="code bash highlight-python"><div class="highlight"><pre>$ easysetup
+</pre></div>
+</div>
+<p><strong>Options</strong></p>
+<div class="code bash highlight-python"><div class="highlight"><pre>$ easysetup -h
+
+usage: easysetup [-option]
+
+optional arguments:
+  -d, --doc             creates template files in the doc directory
+  -h, --help            show this help message
+  -l, --license         show license
+  -q, --quiet           no banner
+  -r, --reference       creates an updated reference.rst in the doc directory
+  -V, --version         show version
+
+No arguments (or only -q, --quiet) creates setup files.
+easysetup should always be run from the application setup directory.
+</pre></div>
+</div>
+</div>
+<div class="section" id="resources-and-contributing">
+<h2>Resources and contributing<a class="headerlink" href="#resources-and-contributing" title="Permalink to this headline">¶</a></h2>
+<p><strong>Resources</strong></p>
+<ul class="simple">
+<li><a class="reference external" href="https://pypi.python.org/pypi/easysetup">Repository PyPI</a></li>
+<li><a class="reference external" href="http://pythonhosted.org/easysetup">Documentation PyPI</a></li>
+<li><a class="reference external" href="https://github.com/jcrmatos/easysetup">Repository Github</a></li>
+<li><a class="reference external" href="http://easysetup.readthedocs.org">Documentation Read the Docs</a></li>
+</ul>
+<p><strong>Contributing</strong></p>
+<p>If Other repository above is Github or compatible, follow these guidelines for contributing:</p>
+<ol class="arabic simple">
+<li>Fork the <a class="reference external" href="https://github.com/jcrmatos/easysetup">repository</a> .</li>
+<li>Make a branch of master and commit your changes to it.</li>
+<li>Ensure that your name is added to the end of the AUTHORS.rst file using the format:
+<code class="docutils literal"><span class="pre">Name</span> <span class="pre">&lt;email&#64;domain.com&gt;</span></code></li>
+<li>Submit a Pull Request to the master branch.</li>
+</ol>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">easysetup</a><ul>
+<li><a class="reference internal" href="#description-features-and-to-do">Description, features and To do</a></li>
+<li><a class="reference internal" href="#installation-usage-and-options">Installation, usage and options</a></li>
+<li><a class="reference internal" href="#resources-and-contributing">Resources and contributing</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Indices and tables</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="reference.html"
+                        title="next chapter">Reference</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/readme.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2009-2015, Joao Carlos Roseta Matos.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.3</a>
+      
+      |
+      <a href="_sources/readme.txt"
+          rel="nofollow">Page source</a></li>
+    </div>
+
+    
+
+    
+  </body>
+</html>

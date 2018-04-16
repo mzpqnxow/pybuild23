@@ -1,0 +1,7 @@
+include *.cmd *.ini *.py *.rst *.txt *.yml
+include appveyor/*
+include doc/*.rst doc/*.py
+include pythonhosted.org/*
+include test/*.rst
+include APPLICATION_NAME/*.txt
+recursive-include APPLICATION_NAME/doc *

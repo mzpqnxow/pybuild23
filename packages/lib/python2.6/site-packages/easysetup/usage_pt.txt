@@ -1,0 +1,13 @@
+
+    uso: easysetup [-opção]
+
+    argumentos opcionais:
+      -d, --doc             cria minutas no diretório doc
+      -h, --help            mostra esta ajuda
+      -l, --license         mostra licença
+      -q, --quiet           não mostra cabeçalho
+      -r, --reference       cria um ficheiro reference.rst atualizado no diretório doc
+      -V, --version         mostra versão
+
+    Sem argumentos (ou apenas -q, --quiet) cria os ficheiros de setup.
+    easysetup deverá ser sempre executado a partir do diretório de setup da aplicação.

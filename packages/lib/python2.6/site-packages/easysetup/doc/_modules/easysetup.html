@@ -1,0 +1,450 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>easysetup &mdash; easysetup 0.0.19 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.0.19',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="easysetup 0.0.19 documentation" href="../index.html" />
+    <link rel="up" title="Module code" href="index.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">easysetup 0.0.19 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for easysetup</h1><div class="highlight"><pre>
+<span class="c">#!/usr/bin/env python</span>
+<span class="c"># -*- coding: utf-8 -*-</span>
+
+<span class="c"># Copyright 2009-2015 Joao Carlos Roseta Matos</span>
+<span class="c">#</span>
+<span class="c"># This program is free software: you can redistribute it and/or modify</span>
+<span class="c"># it under the terms of the GNU General Public License as published by</span>
+<span class="c"># the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c"># (at your option) any later version.</span>
+<span class="c">#</span>
+<span class="c"># This program is distributed in the hope that it will be useful,</span>
+<span class="c"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c"># GNU General Public License for more details.</span>
+<span class="c">#</span>
+<span class="c"># You should have received a copy of the GNU General Public License</span>
+<span class="c"># along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+
+<span class="sd">&quot;&quot;&quot;Helps creating a package distribution setup for Windows users.&quot;&quot;&quot;</span>
+
+<span class="c"># Python 3 compatibility</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="p">(</span><span class="n">absolute_import</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span>
+                        <span class="n">unicode_literals</span><span class="p">)</span>
+
+<span class="kn">import</span> <span class="nn">datetime</span> <span class="kn">as</span> <span class="nn">dt</span>
+<span class="kn">import</span> <span class="nn">glob</span>
+<span class="kn">import</span> <span class="nn">io</span>  <span class="c"># Python 3 compatibility</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">shutil</span> <span class="kn">as</span> <span class="nn">shu</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">zipfile</span> <span class="kn">as</span> <span class="nn">zipf</span>
+
+<span class="kn">from</span> <span class="nn">builtins</span> <span class="kn">import</span> <span class="nb">input</span>  <span class="c"># Python 3 compatibility</span>
+<span class="kn">import</span> <span class="nn">colorama</span> <span class="kn">as</span> <span class="nn">clrm</span>
+
+<span class="kn">import</span> <span class="nn">common</span>
+<span class="kn">import</span> <span class="nn">localization</span> <span class="kn">as</span> <span class="nn">lcl</span>
+
+
+<span class="n">DEFAULT_AUTHOR</span> <span class="o">=</span> <span class="s">&#39;CHANGE_ME&#39;</span>
+<span class="n">DEFAULT_EMAIL</span> <span class="o">=</span> <span class="s">&#39;CHANGE_ME&#39;</span>
+<span class="n">DEFAULT_URL</span> <span class="o">=</span> <span class="s">&#39;https://github.com/CHANGE_ME/&#39;</span>
+
+<span class="n">DEFAULT_VERSION</span> <span class="o">=</span> <span class="s">&#39;0.0.1&#39;</span>
+<span class="n">DEFAULT_LICENSE</span> <span class="o">=</span> <span class="s">&#39;GNU General Public License v2 or later (GPLv2+)&#39;</span>
+
+<span class="n">BAK_DIR</span> <span class="o">=</span> <span class="s">&#39;_bak&#39;</span>
+<span class="n">APPLICATION_TEMPLATE_FILE</span> <span class="o">=</span> <span class="s">&#39;/APPLICATION_NAME.py&#39;</span>
+
+<span class="n">app_name</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+<span class="n">app_version</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+<span class="n">app_license</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+<span class="n">app_author</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+<span class="n">app_email</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+<span class="n">app_url</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+<span class="n">app_keywords</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+<span class="n">cur_date</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">dt</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">())</span>
+
+
+<div class="viewcode-block" id="update_file"><a class="viewcode-back" href="../reference.html#easysetup.update_file">[docs]</a><span class="k">def</span> <span class="nf">update_file</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Update file with user input.&quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="n">io</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="n">lcl</span><span class="o">.</span><span class="n">UTF_ENC</span><span class="p">)</span> <span class="k">as</span> <span class="n">f_in</span><span class="p">:</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="n">f_in</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+
+    <span class="n">new_text</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+    <span class="n">changed</span> <span class="o">=</span> <span class="bp">False</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">text</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s">&#39;APPLICATION_NAME&#39;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;APPLICATION_NAME&#39;</span><span class="p">,</span> <span class="n">app_name</span><span class="p">)</span>
+            <span class="n">changed</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="k">if</span> <span class="s">&#39;APPLICATION_VERSION&#39;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;APPLICATION_VERSION&#39;</span><span class="p">,</span> <span class="n">app_version</span><span class="p">)</span>
+            <span class="n">changed</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="k">if</span> <span class="s">&#39;APPLICATION_LICENSE&#39;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;APPLICATION_LICENSE&#39;</span><span class="p">,</span> <span class="n">app_license</span><span class="p">)</span>
+            <span class="n">changed</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="k">if</span> <span class="s">&#39;APPLICATION_AUTHOR&#39;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;APPLICATION_AUTHOR&#39;</span><span class="p">,</span> <span class="n">app_author</span><span class="p">)</span>
+            <span class="n">changed</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="k">if</span> <span class="s">&#39;APPLICATION_EMAIL&#39;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;APPLICATION_EMAIL&#39;</span><span class="p">,</span> <span class="n">app_email</span><span class="p">)</span>
+            <span class="n">changed</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="k">if</span> <span class="s">&#39;APPLICATION_URL&#39;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;APPLICATION_URL&#39;</span><span class="p">,</span> <span class="n">app_url</span><span class="p">)</span>
+            <span class="n">changed</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="k">if</span> <span class="s">&#39;APPLICATION_KEYWORDS&#39;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;APPLICATION_KEYWORDS&#39;</span><span class="p">,</span> <span class="n">app_keywords</span><span class="p">)</span>
+            <span class="n">changed</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="k">if</span> <span class="s">&#39;CUR_DATE&#39;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;CUR_DATE&#39;</span><span class="p">,</span> <span class="n">cur_date</span><span class="p">)</span>
+            <span class="n">changed</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="c"># quick hacks</span>
+        <span class="k">if</span> <span class="s">&#39;README.rst&#39;</span> <span class="ow">in</span> <span class="n">filename</span> <span class="ow">and</span> <span class="s">&#39;================&#39;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;================&#39;</span><span class="p">,</span> <span class="s">&#39;=&#39;</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">app_name</span><span class="p">))</span>
+            <span class="n">changed</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="k">if</span> <span class="s">&#39;reference.rst&#39;</span> <span class="ow">in</span> <span class="n">filename</span> <span class="ow">and</span> <span class="s">&#39;::::::::::::::::&#39;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;::::::::::::::::&#39;</span><span class="p">,</span> <span class="s">&#39;:&#39;</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">app_name</span><span class="p">))</span>
+            <span class="n">changed</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="n">new_text</span> <span class="o">+=</span> <span class="n">line</span>
+    <span class="k">if</span> <span class="n">changed</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">io</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s">&#39;w&#39;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="n">lcl</span><span class="o">.</span><span class="n">UTF_ENC</span><span class="p">)</span> <span class="k">as</span> <span class="n">f_out</span><span class="p">:</span>
+            <span class="n">f_out</span><span class="o">.</span><span class="n">writelines</span><span class="p">(</span><span class="n">new_text</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="get_app_info"><a class="viewcode-back" href="../reference.html#easysetup.get_app_info">[docs]</a><span class="k">def</span> <span class="nf">get_app_info</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Read application info from appinfo.py.&quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">app_name</span><span class="p">,</span> <span class="n">app_version</span><span class="p">,</span> <span class="n">app_license</span><span class="p">,</span> <span class="n">app_author</span><span class="p">,</span> <span class="n">app_email</span><span class="p">,</span> \
+        <span class="n">app_url</span><span class="p">,</span> <span class="n">app_keywords</span>
+
+    <span class="k">with</span> <span class="n">io</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">common</span><span class="o">.</span><span class="n">APP_INFO_FILENAME</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="n">lcl</span><span class="o">.</span><span class="n">UTF_ENC</span><span class="p">)</span> <span class="k">as</span> <span class="n">f_in</span><span class="p">:</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="n">f_in</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">text</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s">&#39;APP_NAME = &#39;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+            <span class="n">app_name</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;&#39;&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s">&#39;APP_VERSION = &#39;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+            <span class="n">app_version</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;&#39;&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s">&#39;APP_LICENSE = &#39;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+            <span class="n">app_license</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;&#39;&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s">&#39;APP_AUTHOR = &#39;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+            <span class="n">app_author</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;&#39;&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s">&#39;APP_EMAIL = &#39;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+            <span class="n">app_email</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;&#39;&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s">&#39;APP_URL = &#39;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+            <span class="n">app_url</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;&#39;&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s">&#39;APP_KEYWORDS = &#39;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+            <span class="n">app_keywords</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;&#39;&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+
+</div>
+<div class="viewcode-block" id="update_ref"><a class="viewcode-back" href="../reference.html#easysetup.update_ref">[docs]</a><span class="k">def</span> <span class="nf">update_ref</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Creates a new doc/reference.rst for Sphinx autodoc extension.&quot;&quot;&quot;</span>
+    <span class="n">filenames</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">app_name</span> <span class="o">+</span> <span class="s">&#39;/*.py&#39;</span><span class="p">)</span>
+    <span class="c"># remove __init__.py</span>
+    <span class="n">filenames</span> <span class="o">=</span> <span class="p">[</span><span class="n">filename</span> <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">filenames</span>
+                 <span class="k">if</span> <span class="s">&#39;__init__.py&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">filename</span> <span class="ow">and</span>
+                 <span class="s">&#39;appinfo.py&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">filename</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">filenames</span><span class="p">:</span>
+        <span class="c"># remove paths</span>
+        <span class="n">filenames</span> <span class="o">=</span> <span class="p">[</span><span class="n">filename</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">filenames</span><span class="p">]</span>
+        <span class="c"># remove extensions</span>
+        <span class="n">filenames</span> <span class="o">=</span> <span class="p">[</span><span class="n">filename</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">filenames</span><span class="p">]</span>
+
+        <span class="n">text</span> <span class="o">=</span> <span class="s">&#39;Reference</span><span class="se">\n</span><span class="s">---------</span><span class="se">\n</span><span class="s">&#39;</span>
+
+        <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">filenames</span><span class="p">:</span>
+            <span class="n">text</span> <span class="o">+=</span> <span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span>
+            <span class="n">text</span> <span class="o">+=</span> <span class="n">filename</span> <span class="o">+</span> <span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">+</span> <span class="s">&#39;:&#39;</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="o">+</span> <span class="s">&#39;</span><span class="se">\n\n</span><span class="s">&#39;</span>
+            <span class="n">text</span> <span class="o">+=</span> <span class="s">&#39;.. automodule:: &#39;</span> <span class="o">+</span> <span class="n">filename</span> <span class="o">+</span> <span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span>
+            <span class="n">text</span> <span class="o">+=</span> <span class="s">&#39;    :members:</span><span class="se">\n</span><span class="s">&#39;</span>
+
+        <span class="k">with</span> <span class="n">io</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s">&#39;doc/reference.rst&#39;</span><span class="p">,</span> <span class="s">&#39;w&#39;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="n">lcl</span><span class="o">.</span><span class="n">UTF_ENC</span><span class="p">)</span> <span class="k">as</span> <span class="n">f_out</span><span class="p">:</span>
+            <span class="n">f_out</span><span class="o">.</span><span class="n">writelines</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="update_doc"><a class="viewcode-back" href="../reference.html#easysetup.update_doc">[docs]</a><span class="k">def</span> <span class="nf">update_doc</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Update doc dir.&quot;&quot;&quot;</span>
+    <span class="n">filenames</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">common</span><span class="o">.</span><span class="n">DATA_PATH</span> <span class="o">+</span> <span class="s">&#39;template/doc/*&#39;</span><span class="p">)</span>
+    <span class="c"># copy template/doc files</span>
+    <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">filenames</span><span class="p">:</span>
+        <span class="c"># if file exists delete it</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="s">&#39;doc/&#39;</span> <span class="o">+</span> <span class="n">filename</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s">&#39;doc/&#39;</span> <span class="o">+</span> <span class="n">filename</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="n">shu</span><span class="o">.</span><span class="n">copyfile</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s">&#39;doc/&#39;</span> <span class="o">+</span> <span class="n">filename</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+    <span class="n">filenames_to_update</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;conf.py&#39;</span><span class="p">,</span> <span class="s">&#39;reference.rst&#39;</span><span class="p">]</span>
+
+    <span class="c"># delete .pyc files and update files</span>
+    <span class="n">filenames</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s">&#39;doc/*&#39;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">filenames</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s">&#39;.pyc&#39;</span> <span class="ow">in</span> <span class="n">filename</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">filename</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="n">filenames_to_update</span><span class="p">:</span>
+                <span class="n">update_file</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+
+    <span class="n">update_ref</span><span class="p">()</span>
+
+</div>
+<div class="viewcode-block" id="create_redir2rtd_zip"><a class="viewcode-back" href="../reference.html#easysetup.create_redir2rtd_zip">[docs]</a><span class="k">def</span> <span class="nf">create_redir2rtd_zip</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Create zip of index.html that redirects pythonhosted to RTD.&quot;&quot;&quot;</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="s">&#39;pythonhosted.org/index.html&#39;</span>
+    <span class="k">with</span> <span class="n">zipf</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="s">&#39;pythonhosted.org/redir2RTD.zip&#39;</span><span class="p">,</span> <span class="s">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">archive</span><span class="p">:</span>
+        <span class="n">archive</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">filename</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+</div>
+<div class="viewcode-block" id="create_setup"><a class="viewcode-back" href="../reference.html#easysetup.create_setup">[docs]</a><span class="k">def</span> <span class="nf">create_setup</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Copy files from template and update them with user input.&quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">app_name</span><span class="p">,</span> <span class="n">app_version</span><span class="p">,</span> <span class="n">app_license</span><span class="p">,</span> <span class="n">app_author</span><span class="p">,</span> <span class="n">app_email</span><span class="p">,</span> \
+        <span class="n">app_url</span><span class="p">,</span> <span class="n">app_keywords</span><span class="p">,</span> <span class="n">DEFAULT_AUTHOR</span><span class="p">,</span> <span class="n">DEFAULT_EMAIL</span><span class="p">,</span> \
+        <span class="n">DEFAULT_LICENSE</span><span class="p">,</span> <span class="n">DEFAULT_URL</span><span class="p">,</span> <span class="n">DEFAULT_VERSION</span>
+
+    <span class="n">data_lst</span> <span class="o">=</span> <span class="n">common</span><span class="o">.</span><span class="n">load_data</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">data_lst</span><span class="p">:</span>
+        <span class="p">(</span><span class="n">DEFAULT_AUTHOR</span><span class="p">,</span> <span class="n">DEFAULT_EMAIL</span><span class="p">,</span> <span class="n">DEFAULT_LICENSE</span><span class="p">,</span> <span class="n">DEFAULT_URL</span><span class="p">,</span>
+         <span class="n">DEFAULT_VERSION</span><span class="p">)</span> <span class="o">=</span> <span class="n">data_lst</span>
+
+    <span class="k">while</span> <span class="ow">not</span> <span class="n">app_name</span><span class="p">:</span>
+        <span class="n">app_name</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="n">lcl</span><span class="o">.</span><span class="n">Q_APP_NAME</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">lcl</span><span class="o">.</span><span class="n">INPUT_ENC</span><span class="p">)</span>
+
+    <span class="n">app_version</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="n">lcl</span><span class="o">.</span><span class="n">Q_APP_VERSION</span> <span class="o">+</span> <span class="s">&#39;[&#39;</span> <span class="o">+</span> <span class="n">DEFAULT_VERSION</span> <span class="o">+</span>
+                        <span class="s">&#39;] &#39;</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">lcl</span><span class="o">.</span><span class="n">INPUT_ENC</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">app_version</span><span class="p">:</span>
+        <span class="n">app_version</span> <span class="o">=</span> <span class="n">DEFAULT_VERSION</span>
+
+    <span class="n">app_license</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="n">lcl</span><span class="o">.</span><span class="n">Q_APP_LICENSE</span> <span class="o">+</span> <span class="s">&#39;[&#39;</span> <span class="o">+</span> <span class="n">DEFAULT_LICENSE</span> <span class="o">+</span>
+                        <span class="s">&#39;] &#39;</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">lcl</span><span class="o">.</span><span class="n">INPUT_ENC</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">app_license</span><span class="p">:</span>
+        <span class="n">app_license</span> <span class="o">=</span> <span class="n">DEFAULT_LICENSE</span>
+
+    <span class="n">app_author</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="n">lcl</span><span class="o">.</span><span class="n">Q_APP_AUTHOR</span> <span class="o">+</span> <span class="s">&#39;[&#39;</span> <span class="o">+</span> <span class="n">DEFAULT_AUTHOR</span> <span class="o">+</span>
+                       <span class="s">&#39;] &#39;</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">lcl</span><span class="o">.</span><span class="n">INPUT_ENC</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">app_author</span><span class="p">:</span>
+        <span class="n">app_author</span> <span class="o">=</span> <span class="n">DEFAULT_AUTHOR</span>
+
+    <span class="n">app_email</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="n">lcl</span><span class="o">.</span><span class="n">Q_APP_EMAIL</span> <span class="o">+</span> <span class="s">&#39;[&#39;</span> <span class="o">+</span> <span class="n">DEFAULT_EMAIL</span> <span class="o">+</span>
+                      <span class="s">&#39;] &#39;</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">lcl</span><span class="o">.</span><span class="n">INPUT_ENC</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">app_email</span><span class="p">:</span>
+        <span class="n">app_email</span> <span class="o">=</span> <span class="n">DEFAULT_EMAIL</span>
+
+    <span class="n">app_url</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="n">lcl</span><span class="o">.</span><span class="n">Q_APP_URL</span> <span class="o">+</span> <span class="s">&#39;[&#39;</span> <span class="o">+</span> <span class="n">DEFAULT_URL</span> <span class="o">+</span>
+                    <span class="s">&#39;] &#39;</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">lcl</span><span class="o">.</span><span class="n">INPUT_ENC</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">app_url</span><span class="p">:</span>
+        <span class="n">app_url</span> <span class="o">=</span> <span class="n">DEFAULT_URL</span>
+
+    <span class="n">app_keywords</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="n">lcl</span><span class="o">.</span><span class="n">Q_APP_KEYWORDS</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">lcl</span><span class="o">.</span><span class="n">INPUT_ENC</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">app_keywords</span><span class="p">:</span>
+        <span class="n">app_keywords</span> <span class="o">=</span> <span class="n">app_name</span>
+
+    <span class="n">data_lst</span> <span class="o">=</span> <span class="p">[</span><span class="n">app_author</span><span class="p">,</span> <span class="n">app_email</span><span class="p">,</span> <span class="n">app_license</span><span class="p">,</span> <span class="n">app_url</span><span class="p">,</span> <span class="n">app_version</span><span class="p">]</span>
+    <span class="n">common</span><span class="o">.</span><span class="n">save_data</span><span class="p">(</span><span class="n">data_lst</span><span class="p">)</span>
+
+    <span class="n">app_url</span> <span class="o">+=</span> <span class="n">app_name</span>
+
+    <span class="c"># backup existing files</span>
+    <span class="n">backup</span> <span class="o">=</span> <span class="bp">False</span>
+    <span class="n">filenames</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s">&#39;*&#39;</span><span class="p">)</span>
+    <span class="n">filenames</span> <span class="o">+=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s">&#39;.*&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">filenames</span><span class="p">:</span>
+        <span class="n">backup</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">BAK_DIR</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">filenames</span><span class="p">:</span>
+            <span class="n">dest</span> <span class="o">=</span> <span class="n">BAK_DIR</span> <span class="o">+</span> <span class="s">&#39;/&#39;</span> <span class="o">+</span> <span class="n">filename</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">shu</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">dest</span><span class="p">)</span>
+
+    <span class="n">filenames</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">common</span><span class="o">.</span><span class="n">DATA_PATH</span> <span class="o">+</span> <span class="s">&#39;template/*&#39;</span><span class="p">)</span>
+    <span class="n">filenames</span> <span class="o">+=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">common</span><span class="o">.</span><span class="n">DATA_PATH</span> <span class="o">+</span> <span class="s">&#39;template/.*&#39;</span><span class="p">)</span>
+    <span class="c"># remove doc dir</span>
+    <span class="n">filenames</span> <span class="o">=</span> <span class="p">[</span><span class="n">filename</span> <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">filenames</span>
+                 <span class="k">if</span> <span class="s">&#39;template&#39;</span> <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">sep</span> <span class="o">+</span> <span class="s">&#39;doc&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">filename</span><span class="p">]</span>
+
+    <span class="c"># copy files and dirs</span>
+    <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">filenames</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+            <span class="n">shu</span><span class="o">.</span><span class="n">copyfile</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">filename</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">shu</span><span class="o">.</span><span class="n">copytree</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">filename</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+    <span class="n">common</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="n">os</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s">&#39;APPLICATION_NAME&#39;</span><span class="p">,</span> <span class="n">app_name</span><span class="p">)</span>  <span class="c"># rename application dir</span>
+
+    <span class="c"># collect all filenames, including from 1st level subdirs</span>
+    <span class="n">filenames</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s">&#39;*&#39;</span><span class="p">)</span>
+    <span class="n">filenames</span> <span class="o">=</span> <span class="p">[</span><span class="n">filename</span> <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">filenames</span> <span class="k">if</span> <span class="n">BAK_DIR</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">filename</span><span class="p">]</span>
+    <span class="n">filenames</span> <span class="o">+=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s">&#39;.*&#39;</span><span class="p">)</span>
+    <span class="n">new_filenames</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">filenames</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+            <span class="n">new_filenames</span> <span class="o">+=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">filename</span> <span class="o">+</span> <span class="s">&#39;/*&#39;</span><span class="p">)</span>
+    <span class="n">filenames</span> <span class="o">+=</span> <span class="n">new_filenames</span>
+
+    <span class="n">exceptions</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;__init__.py&#39;</span><span class="p">,</span> <span class="s">&#39;build.cmd&#39;</span><span class="p">,</span> <span class="s">&#39;requirements.txt&#39;</span><span class="p">,</span>
+                  <span class="s">&#39;requirements-dev.txt&#39;</span><span class="p">,</span> <span class="s">&#39;setup.py&#39;</span><span class="p">,</span> <span class="s">&#39;setup_py2exe.py&#39;</span><span class="p">,</span>
+                  <span class="s">&#39;setup_utils.py&#39;</span><span class="p">]</span>
+
+    <span class="c"># delete .pyc files and update files</span>
+    <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">filenames</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+            <span class="k">if</span> <span class="s">&#39;.pyc&#39;</span> <span class="ow">in</span> <span class="n">filename</span><span class="p">:</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">filename</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">exceptions</span><span class="p">:</span>
+                    <span class="n">update_file</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+
+    <span class="n">create_redir2rtd_zip</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">backup</span><span class="p">:</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">app_name</span> <span class="o">+</span> <span class="n">APPLICATION_TEMPLATE_FILE</span><span class="p">)</span>  <span class="c"># remove app template</span>
+        <span class="c"># restore files from backup, but only if they don&#39;t already exist</span>
+        <span class="n">filenames</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">BAK_DIR</span> <span class="o">+</span> <span class="s">&#39;/*&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">filenames</span><span class="p">:</span>
+            <span class="n">dest</span> <span class="o">=</span> <span class="n">app_name</span> <span class="o">+</span> <span class="s">&#39;/&#39;</span> <span class="o">+</span> <span class="n">filename</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">dest</span><span class="p">):</span>
+                <span class="n">shu</span><span class="o">.</span><span class="n">copyfile</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">dest</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">app_name</span> <span class="o">+</span> <span class="n">APPLICATION_TEMPLATE_FILE</span><span class="p">,</span>
+                  <span class="n">app_name</span> <span class="o">+</span> <span class="s">&#39;/&#39;</span> <span class="o">+</span> <span class="n">app_name</span> <span class="o">+</span> <span class="s">&#39;.py&#39;</span><span class="p">)</span>  <span class="c"># rename app template</span>
+
+    <span class="k">print</span><span class="p">(</span><span class="n">lcl</span><span class="o">.</span><span class="n">REMINDERS</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../reference.html#easysetup.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Process command line args.&quot;&quot;&quot;</span>
+    <span class="n">clrm</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
+
+    <span class="n">args</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+    <span class="k">if</span> <span class="n">args</span><span class="p">:</span>
+        <span class="n">args_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+
+        <span class="n">max_args</span> <span class="o">=</span> <span class="mi">2</span>  <span class="c"># -q and one other</span>
+        <span class="n">doc_arg_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="s">&#39;-d&#39;</span><span class="p">,</span> <span class="s">&#39;--doc&#39;</span><span class="p">])</span>
+        <span class="n">help_arg_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="s">&#39;-h&#39;</span><span class="p">,</span> <span class="s">&#39;--help&#39;</span><span class="p">])</span>
+        <span class="n">license_arg_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="s">&#39;-l&#39;</span><span class="p">,</span> <span class="s">&#39;--license&#39;</span><span class="p">])</span>
+        <span class="n">quiet_arg_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="s">&#39;-q&#39;</span><span class="p">,</span> <span class="s">&#39;--quiet&#39;</span><span class="p">])</span>
+        <span class="n">reference_arg_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="s">&#39;-r&#39;</span><span class="p">,</span> <span class="s">&#39;--reference&#39;</span><span class="p">])</span>
+        <span class="n">version_arg_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="s">&#39;-V&#39;</span><span class="p">,</span> <span class="s">&#39;--version&#39;</span><span class="p">])</span>
+        <span class="n">legal_args_set</span> <span class="o">=</span> <span class="p">(</span><span class="n">doc_arg_set</span> <span class="o">|</span> <span class="n">help_arg_set</span> <span class="o">|</span> <span class="n">license_arg_set</span> <span class="o">|</span>
+                          <span class="n">quiet_arg_set</span> <span class="o">|</span> <span class="n">reference_arg_set</span> <span class="o">|</span> <span class="n">version_arg_set</span><span class="p">)</span>
+
+        <span class="c"># if any wrong arg, too many args or (max args and -q not among them)</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">args_set</span> <span class="o">-</span> <span class="n">legal_args_set</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">max_args</span> <span class="ow">or</span>
+           <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="n">max_args</span> <span class="ow">and</span> <span class="ow">not</span> <span class="p">(</span><span class="n">quiet_arg_set</span> <span class="o">&amp;</span> <span class="n">args_set</span><span class="p">))):</span>
+            <span class="k">print</span><span class="p">(</span><span class="n">common</span><span class="o">.</span><span class="n">banner</span><span class="p">())</span>
+            <span class="k">print</span><span class="p">(</span><span class="n">clrm</span><span class="o">.</span><span class="n">Fore</span><span class="o">.</span><span class="n">RED</span> <span class="o">+</span> <span class="n">lcl</span><span class="o">.</span><span class="n">WRONG_ARG</span> <span class="o">+</span> <span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
+            <span class="k">print</span><span class="p">(</span><span class="n">clrm</span><span class="o">.</span><span class="n">Fore</span><span class="o">.</span><span class="n">RESET</span> <span class="o">+</span> <span class="n">common</span><span class="o">.</span><span class="n">usage</span><span class="p">())</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">quiet_arg_set</span> <span class="o">&amp;</span> <span class="n">args_set</span><span class="p">):</span>
+                <span class="k">print</span><span class="p">(</span><span class="n">common</span><span class="o">.</span><span class="n">banner</span><span class="p">())</span>
+
+            <span class="k">if</span> <span class="n">doc_arg_set</span> <span class="o">&amp;</span> <span class="n">args_set</span><span class="p">:</span>
+                <span class="n">get_app_info</span><span class="p">()</span>
+                <span class="n">update_doc</span><span class="p">()</span>
+            <span class="k">elif</span> <span class="n">license_arg_set</span> <span class="o">&amp;</span> <span class="n">args_set</span><span class="p">:</span>
+                <span class="k">print</span><span class="p">(</span><span class="n">common</span><span class="o">.</span><span class="n">license_</span><span class="p">())</span>
+            <span class="k">elif</span> <span class="n">help_arg_set</span> <span class="o">&amp;</span> <span class="n">args_set</span><span class="p">:</span>
+                <span class="k">print</span><span class="p">(</span><span class="n">common</span><span class="o">.</span><span class="n">usage</span><span class="p">())</span>
+            <span class="k">elif</span> <span class="n">reference_arg_set</span> <span class="o">&amp;</span> <span class="n">args_set</span><span class="p">:</span>
+                <span class="n">get_app_info</span><span class="p">()</span>
+                <span class="n">update_ref</span><span class="p">()</span>
+            <span class="k">elif</span> <span class="n">version_arg_set</span> <span class="o">&amp;</span> <span class="n">args_set</span><span class="p">:</span>
+                <span class="k">print</span><span class="p">(</span><span class="n">lcl</span><span class="o">.</span><span class="n">VERSION</span><span class="p">,</span> <span class="n">common</span><span class="o">.</span><span class="n">version</span><span class="p">())</span>
+            <span class="k">else</span><span class="p">:</span>  <span class="c"># only -q</span>
+                <span class="n">create_setup</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="n">common</span><span class="o">.</span><span class="n">banner</span><span class="p">())</span>
+        <span class="n">create_setup</span><span class="p">()</span>
+
+</div>
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="c"># import doctest</span>
+    <span class="c"># doctest.testmod(verbose=True)</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
+
+
+<span class="c"># ToDo: Auto rebuild requirements.txt on each dist build.</span>
+<span class="c"># ToDo: CXF in Py2 and Py3</span>
+<span class="c"># ToDo: checks and error messages</span>
+<span class="c"># ToDo: Move build.cmd functionality to easysetup.py.</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2009-2015, Joao Carlos Roseta Matos.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.3</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

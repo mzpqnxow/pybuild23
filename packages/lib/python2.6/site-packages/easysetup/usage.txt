@@ -1,0 +1,13 @@
+
+    usage: easysetup [-option]
+
+    optional arguments:
+      -d, --doc             creates template files in the doc directory
+      -h, --help            show this help message
+      -l, --license         show license
+      -q, --quiet           no banner
+      -r, --reference       creates an updated reference.rst in the doc directory
+      -V, --version         show version
+
+    No arguments (or only -q, --quiet) creates setup files.
+    easysetup should always be run from the application setup directory.
