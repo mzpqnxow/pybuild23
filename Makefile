@@ -43,16 +43,12 @@ check_root:
 	@[ $(RUNNING_USER) != "root" ] || (echo Disallowing clean as root user; /bin/false)
 
 clean: check_root
-	@$(RM_RF) $(VENV_DIR)/bin \
-                 $(VENV_DIR)/lib \
-                 $(VENV_DIR)/include \
-                 $(VENV_DIR)/pip-selfcheck.json \
-                 $(VENV_DIR)/lib64 \
-                 $(VENV_DIR)/local \
-                 $(VENV_DIR)/etc \
-                 $(VENV_DIR)/.pip.ini \
-                 $(VENV_DIR)/.interactive && \
-                 echo Cleaned virtual environment \!\!
+	TMPFILE=`mktemp` && \
+	  cp venv/requirements.txt $$TMPFILE && \
+          rm -rf $(VENV_DIR) && \
+          mkdir $(VENV_DIR) && \
+          mv $$TMPFILE $(VENV_DIR)/requirements.txt #&& \
+          #rm -rf ~/.cache/pip
 
 rebuild: clean all
 
