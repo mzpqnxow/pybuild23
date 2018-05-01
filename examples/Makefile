@@ -4,6 +4,7 @@ PYTHON3 = /usr/bin/python3
 VENV_DIR = venv/
 RM_RF := /bin/rm -rf
 PYBUILD := ./pybuild
+BUILD_FILES := build dist *.egg-info
 PROJECT_FILES := etc packages pybuild .gitignore examples/Makefile
 COPY_FILES := etc packages pybuild examples/Makefile venv
 
@@ -24,8 +25,17 @@ $(VENV_DIR):
 	@echo "----"
 	@mkdir -p $(VENV_DIR)
 
+publish:
+	git push && python setup.py sdist upload -r local
+	make clean
+
 clean:
-	$(RM_RF) $(VENV_DIR)/bin $(VENV_DIR)/lib $(VENV_DIR)/include $(VENV_DIR)/pip-selfcheck.json $(VENV_DIR)/lib64 $(VENV_DIR)/local
+	TMPFILE=`mktemp` && \
+	  cp venv/requirements.txt $$TMPFILE && \
+          rm -rf $(VENV_DIR) && \
+          mkdir $(VENV_DIR) && \
+          mv $$TMPFILE $(VENV_DIR)/requirements.txt #&& \
+          #rm -rf ~/.cache/pip
 
 rebuild: clean all
 
