@@ -25,7 +25,7 @@ from time import sleep
 # Basic required directories for a virtualenv
 VENV_DIRS = set(['lib', 'bin', 'include'])
 # Taken from etc/
-INI_FILES = set(['.pip.ini', '.interactive'])
+INI_FILES = set(['.interactive', 'pip.conf'])
 # Put your dependencies in these files in your empty venv directory
 PKG_REQUIREMENT_FILEPATHS = set(['requirements.txt',
                                  'etc/requirements.txt'])
@@ -112,6 +112,9 @@ def destroy(explain, vdirs, cfg):
 
 def invoke_virtualenv(virtualenv_exe, python, pipini, interactive, cwd):
     """ Run virtualenv with the arguments and environment set """
+    shutil.copy(pipini, 'pip.conf')
+    shutil.copy(interactive, '.interactive')
+
     try:
         sp.check_call([python, virtualenv_exe, '--no-site-packages', '.'],
                       env=basic_env(cwd))
@@ -120,9 +123,6 @@ def invoke_virtualenv(virtualenv_exe, python, pipini, interactive, cwd):
             raise RuntimeError('Python %s does not exist !!' % python)
         else:
             raise err
-
-    shutil.copy(pipini, '.pip.ini')
-    shutil.copy(interactive, '.interactive')
 
 
 def pip(pip_exe, ini, require, cwd):
