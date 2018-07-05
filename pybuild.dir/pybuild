@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 Build a Python virtual environment without setuptools, virtualenv and
@@ -73,7 +73,7 @@ def force_symlink(file1, file2):
     """ Be forceful about creating a symlink """
     try:
         os.symlink(file1, file2)
-    except OSError, err:
+    except OSError as err:
         if err.errno == EEXIST:
             os.remove(file2)
             os.symlink(file1, file2)

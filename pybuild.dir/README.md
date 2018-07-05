@@ -1,5 +1,5 @@
 # pybuild23
-Streamline Python venv creation w/Python 2.6, 2.7 and 3.x using a simple make command. Common dependencies (pip, virtualenv, setuptools) included!
+Streamline Python venv deployment w/Python 2.6, 2.7 and 3.x using a simple make command. Common dependencies (pip, virtualenv, setuptools) included!
 
 ## Basic usage
 
@@ -20,4 +20,4 @@ Place your dependencies in venv/requirements.txt. These will be added when `make
 ## Credits
 
 * Concept and original implementation by David Marker
-* Re-implementation, Python3 support, `make new` target by Adam Greene. See LICENSE.
+* Re-implementation, Python3 support, `make new` target, restructuring, cleanup by Adam Greene. See LICENSE.
