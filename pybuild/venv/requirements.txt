@@ -1,5 +1,4 @@
 pylint
 pyflakes
-pychecker
-flake8
 pycodestyle
+# flake8
