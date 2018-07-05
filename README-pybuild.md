@@ -7,6 +7,7 @@ As before, you may simple type:
 * `make new REPO=ssh://github.com/myname/myproject` - To "install" pybuild into an existing (preferably empty) project
 * `make clean` - To clean out a deployed virtual environment
 * `make rebuild` - Shortcut for make clean && make
+* `source activate` - Shortcut for `source pybuild/venv/bin/activate`
 
 ## Changes
 
