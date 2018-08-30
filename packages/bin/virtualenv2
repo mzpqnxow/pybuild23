@@ -1,11 +1,12 @@
 #!/usr/bin/env python2
-
-# -*- coding: utf-8 -*-
+# EASY-INSTALL-ENTRY-SCRIPT: 'virtualenv==16.0.0','console_scripts','virtualenv'
+__requires__ = 'virtualenv==16.0.0'
 import re
 import sys
-
-from virtualenv import main
+from pkg_resources import load_entry_point
 
 if __name__ == '__main__':
     sys.argv[0] = re.sub(r'(-script\.pyw?|\.exe)?$', '', sys.argv[0])
-    sys.exit(main())
+    sys.exit(
+        load_entry_point('virtualenv==16.0.0', 'console_scripts', 'virtualenv')()
+    )
