@@ -190,7 +190,7 @@ def main():
         DEFAULT_VENV_BASE_PYTHON = DEFAULT_VENV_BASE_PYTHON2
         PYVERSION = 2
 
-    for appname in ('virtualenv', 'easy_install', 'pip'):
+    for appname in ('virtualenv', 'easy_install', 'pip', 'twine', 'pkginfo'):
         force_symlink(
             '{0}{1}'.format(appname, PYVERSION),
             os.path.join('packages', 'bin', '{0}'.format(appname)))
