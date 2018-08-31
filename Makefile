@@ -1,3 +1,17 @@
+#
+# Makefile for pybuild23
+#
+# Usage:
+#   $ make <-- will build for Python2 by default
+#   $ make python2
+#   $ make python3
+#   $ make clean
+#   $ make rebuild
+#   $ make new REPO=https://github.com/someuser/someproject
+#
+# See the README.md for more details
+#
+
 ROOT_DIR:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 PYTHON = /usr/bin/python
 PYTHON3 = /usr/bin/python3
@@ -6,6 +20,7 @@ RM_RF := /bin/rm -rf
 PYBUILD := ./pybuild
 BUILD_FILES := build dist *.egg-info
 PROJECT_FILES := etc packages pybuild .gitignore examples/Makefile
+
 COPY_FILES := etc packages pybuild examples/Makefile venv
 
 
@@ -38,6 +53,49 @@ clean:
           mv $$TMPFILE $(VENV_DIR)/requirements.txt #&& \
           #rm -rf ~/.cache/pip
 
+# Warn about a "dangerous" target in case idiots run stuff they don't understand :>
+danger:
+	-echo -n "This may be destructive, and it will commit to your repo, press enter if you understand" && \
+         read bah
+
+#
+# Install pybuild into an existing git repository so it can be used to
+# build your venv in that project. Use this after you create a new
+# project and it will set it up for use with a venv. You probably
+# don't want to use this on a project that already has files in it
+# because they could get clobbered. The list of files that will be
+# clobbered is in $(PROJECT_FILES)
+#
+# Usage example:
+#   $ make new REPO=ssh://github.com/yourname/your_existing_empty_repo
+#
+# This will clone the repo and install the pybuild files into the root
+# of the repo, commit the changes, and push
+#
+new: danger
+	set -e; \
+         export REPO_STRIPPED=$$(echo $(REPO) | sed -e 's|\.git||') && \
+         export REPO_BASENAME=$$(basename $$REPO_STRIPPED) && \
+         git clone $$REPO_STRIPPED && \
+         pwd && \
+         cp -r $(PROJECT_FILES) $$REPO_BASENAME/ && \
+         export REPO_VENV=$$REPO_BASENAME/$(VENV_DIR) && \
+         mkdir -p $$REPO_VENV && \
+         cp $(VENV_DIR)/requirements.txt $$REPO_VENV && \
+         mv $$REPO_BASENAME ../ ; x=$$PWD; cd ../$$REPO_BASENAME; \
+         git add . && \
+         git commit -m "Installing pybuild environment" . && \
+         git push && \
+         cd $$x ; \
+         echo ; \
+         echo "pybuild: Completed, project $$REPO_BASENAME now has pybuild skeleton checked in !!" \
+         echo ; \
+         echo "Use to following to work on your new project:" && \
+         echo ; \
+         echo "    $ cd ../$$REPO_BASENAME" && \
+         echo "    $ git log" && \
+         echo
+
 rebuild: clean all
 
-.PHONY:	python2 python3 rebuild clean
+.PHONY:	python2 python3 rebuild clean danger new
