@@ -1,3 +1,17 @@
+#
+# Makefile for pybuild23
+#
+# Usage:
+#   $ make <-- will build for Python2 by default
+#   $ make python2
+#   $ make python3
+#   $ make clean
+#   $ make rebuild
+#   $ make new REPO=https://github.com/someuser/someproject
+#
+# See the README.md for more details
+#
+
 ROOT_DIR:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 PYTHON = /usr/bin/python
 PYTHON3 = /usr/bin/python3
