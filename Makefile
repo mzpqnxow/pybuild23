@@ -107,6 +107,8 @@ clean:
           rm -f $(PACKAGES)/{$(SYMLINKS)}
 
 rebuild: clean all
+again: rebuild  # Aliases
+more: rebuild  # Aliases
 
 test:
 	echo IT WORKS
