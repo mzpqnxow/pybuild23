@@ -1,5 +1,5 @@
 #
-# Universal pybuild @ Acme Co. Makefile
+# Universal pybuild @ Company.com Makefile
 # Supported Targets:
 #  - all: Default target, build a python2 virtual environment in venv/
 #         Customize and commit venv/requirements.txt to your repo
@@ -13,7 +13,7 @@
 #  - publish: Publishes a package based on the contents of your ~/.pypirc
 #             file
 #  - pypirc: Dynamically/interactively creates a ~/.pypirc configured for
-#            user with Acme Co. Artifactory. Only needed once on any given
+#            user with Company  Artifactory. Only needed once on any given
 #            system, not per project, since pypirc is global to the user
 #            and not respected by virtualenv
 #
@@ -23,10 +23,13 @@
 #
 # How does this work? This is all from pybuild, an old project of mine
 # and a friend, @ github.com/mzpqnxow/pybuild23. It is public and free
-# but copyrighted by me. It was not developed on Acme Co. time and
-# actually predates Jet by quite a bit, though the repository has been
-#  created
-# and destroyed several times over the last few years
+# but copyrighted by me. It was not developed on Company time and
+# actually predates my current employer by quite a bit, though the
+# repository has been created and destroyed several times over the last
+# few years. There are at least a few commits with the wrong ~/.gitconfig
+# setting, so about 95% of commits were made from home with my account
+# information, while 5% were made with another company ID, as I was working
+# on company code at the time. :>#
 #
 # - AG, 2018
 #
@@ -67,19 +70,19 @@ freeze:
 	$(PYBUILD) --freeze $(VENV_DIR) 
 
 pypirc:
-	@echo '-------- Acme Co. PyPirc Installation --------'
+	@echo '-------- Company PyPirc Installation --------'
 	echo ''
-	echo 'Follow the prompts to install a ~/.pypirc file that allows you to publish to Jet Artifactory'
+	echo 'Follow the prompts to install a ~/.pypirc file that allows you to publish to Company Artifactory'
 	echo 'WARN: This is a global configuration file for your username ($$USER)'
 	echo 'NOTICE: Any existing ~/.pypirc will be backed up in ~/.pypirc.bak.*'
-	echo '-------- Acme Co. PyPirc Crdentials --------'
+	echo '-------- Company AD PyPirc Crdentials --------'
 	echo 'Please enter your credentials and a PyPirc file will be created'
 	echo 'SECURITY: The file will be stored mode 0600 in ~/.pypirc, private from other users :>'
 	echo
 	cp ~/.pypirc ~/.pypirc.bak.$(date +%s) && \
-	echo -n 'Please enter ACME.local username (without @jet.com): ' && \
+	echo -n 'Please enter Company AD username (without @company.com): ' && \
 	read user && \
-	echo -n 'Please enter ACME.local password: ' && \
+	echo -n 'Please enter Company AD password: ' && \
 	read pass && \
 	sed \
           -e "s/%%USER%%/$$user/" \
@@ -99,4 +102,7 @@ clean:
 
 rebuild: clean all
 
-.PHONY:	python2 python3 rebuild clean pypirc publish
+test:
+	echo IT WORKS
+
+.PHONY:	python2 python3 rebuild clean pypirc publish all test
