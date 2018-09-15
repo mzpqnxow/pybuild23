@@ -1,5 +1,6 @@
 pycodestyle
 pyflakes
 pylint
+flake8
 isort
 seed-isort-config
