@@ -56,9 +56,9 @@ def basic_env(cwd):
     env['SHELL'] = pent.pw_shell
     env['LOGNAME'] = pent.pw_name
     env['PWD'] = getcwd()
-    # One can hope that these environment variables make it to a compiled native code build that
-    # uses GNU make. Pretty unlikely to work, and even less likely to occur, but doesn't hurt.
-    # Maybe numpy or pandas or cython or some such thing can benefit?
+    # One can hope that these parallelism variables make it to a compiled native code build that
+    # uses GNU make, which honors them. Maybe it won't work, but it doesn't hurt. Ideally maybe
+    # numpy, pandas, ffi, cython or some such thing can allow us to benefit from a parallel build
     parallelism_count = '{}'.format((CPU_COUNT)) if CPU_COUNT == 1 else '{}'.format(CPU_COUNT - 1)
     env['MAKEFLAGS'] = env['CONCURRENCY_LEVEL'] = parallelism_count
     for key in ('PATH', 'TERM', 'MAIL'):
@@ -129,9 +129,6 @@ def invoke_virtualenv(virtualenv_exe, python, pipini, interactive, cwd):
     shutil.copy(interactive, '.interactive')
 
     try:
-        print(basic_env(cwd))
-        print(python)
-        print(virtualenv_exe)
         sp.check_call(
             [python, virtualenv_exe, '--no-site-packages', '.'],
             env=basic_env(cwd))
@@ -204,7 +201,7 @@ def pip(pip_exe, ini, require, cwd, action='install'):
             '-r',
             req]  # Preserves comments and order
     }
-    assert action in (pip_arguments)
+    assert action in pip_arguments
 
     if action == 'install':
         # Use -I to ensure prepackaged dependencies are installed if specified in
@@ -221,12 +218,11 @@ def pip(pip_exe, ini, require, cwd, action='install'):
             byte_output = sp.check_output(pip_arguments[action], env=basic_env(cwd))
             frozen_fullpath = frozen_requirements_fullpath(req)
             with open(frozen_fullpath, 'wb') as ffd:
-                ffd.write(byte_output)
                 print('Writing stable, frozen requirements file to {}...'.format(frozen_fullpath))
-                utf8_output = byte_output.decode('utf-8').strip()
-                print(utf8_output)
+                ffd.write(byte_output)
+                # utf8_output = byte_output.decode('utf-8').strip()
                 print('# ---- END ---- #')
-        except subprocess.CalledProcessError as err:
+        except sp.CalledProcessError as err:
             print('error invoking pip freeze {}'.format(err))
             raise
 
@@ -325,10 +321,8 @@ def main():
                                   ini_load_path,
                                   interactive_load_path,
                                   cwd)
-
             # always try to install the requirements.
             pip('bin/pip', ini_load_path, PKG_REQUIREMENT_FILEPATHS, cwd, action='install')
-            # pip('bin/pip', ini_load_path, PKG_REQUIREMENT_FILEPATHS, cwd, acction='install')
 
     except RuntimeError as err:
         optparser.error(

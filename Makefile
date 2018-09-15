@@ -45,8 +45,8 @@ COPY_FILES := etc packages pybuild examples/Makefile venv
 PACKAGES := packages
 SYMLINKS := pip twine virtualenv pkginfo easy_install
 PYPIRC := $(ROOT_DIR)/pypirc.template
-STABLE_DEPLOYMENTS := repeated-deployments/
-STABLE_DEPLOYMENT_TXT := codefreeze-requirements.txt.frozen-deploy-*
+STABLE_DEPLOYMENTS_PATH := repeatable-deployments/
+STABLE_DEPLOYMENT_FILE := codefreeze-requirements.txt.frozen-deploy-
 all: python2
 
 python2: $(VENV_DIR)
@@ -70,9 +70,9 @@ publish:
 freeze:
 	$(PYBUILD) --freeze $(VENV_DIR) && \
           echo "Versions of all packages and their dependencies has been stashed in" && \
-          echo "the $(STABLE_DEPLOYMENTS) directory. Press enter and it will be" && \
+          echo "the $(STABLE_DEPLOYMENTS_PATH) directory. Press enter and it will be" && \
           echo -n "auto-added/committed for you, or press control-C to cancel ..." && \
-          git add $(STABLE_DEPLOYMENTS)/codefreeze-requirements.txt.frozen-deploy-* && \
+          git add $(STABLE_DEPLOYMENTS_PATH)/$(STABLE_DEPLOYMENT_FILE) && \
           git commit -m 'Added a frozen requirements.txt file for stable deployment' 
 
 pypirc:
