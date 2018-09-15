@@ -1,5 +1,7 @@
-pycodestyle
-pyflakes
+flake8  # flake8 will also bring pycodestyle andpyflakes with it
+#pycodestyle
+#pyflakes
 pylint
+# isort is useful for cleaning up imports in large projects, configure it in setup.cfg
 isort
 seed-isort-config
