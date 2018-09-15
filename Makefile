@@ -1,4 +1,4 @@
-#
+#############################################################################
 # Universal pybuild @ Company.com Makefile
 # Supported Targets:
 #  - all: Default target, build a python2 virtual environment in venv/
@@ -32,7 +32,7 @@
 # on company code at the time. :>#
 #
 # - AG, 2018
-#
+##############################################################################
 ROOT_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 PYTHON = /usr/bin/python
 PYTHON3 = /usr/bin/python3
@@ -45,7 +45,8 @@ COPY_FILES := etc packages pybuild examples/Makefile venv
 PACKAGES := packages
 SYMLINKS := pip twine virtualenv pkginfo easy_install
 PYPIRC := $(ROOT_DIR)/pypirc.template
-
+STABLE_DEPLOYMENTS := repeated-deployments/
+STABLE_DEPLOYMENT_TXT := codefreeze-requirements.txt.frozen-deploy-*
 all: python2
 
 python2: $(VENV_DIR)
@@ -63,11 +64,16 @@ $(VENV_DIR):
 	@mkdir -p $(VENV_DIR)
 
 publish:
-	git push && python setup.py sdist upload -r local
+	git push && python setup.py sdist upload -r local && \
 	make clean
 
 freeze:
-	$(PYBUILD) --freeze $(VENV_DIR) 
+	$(PYBUILD) --freeze $(VENV_DIR) && \
+          echo "Versions of all packages and their dependencies has been stashed in" && \
+          echo "the $(STABLE_DEPLOYMENTS) directory. Press enter and it will be" && \
+          echo -n "auto-added/committed for you, or press control-C to cancel ..." && \
+          git add $(STABLE_DEPLOYMENTS)/codefreeze-requirements.txt.frozen-deploy-* && \
+          git commit -m 'Added a frozen requirements.txt file for stable deployment' 
 
 pypirc:
 	@echo '-------- Company PyPirc Installation --------'
