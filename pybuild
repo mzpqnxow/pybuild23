@@ -13,23 +13,21 @@ Copyright (C) 2018
     David Marker <dave@freedave.net>
 Please see LICENSE or LICENSE.md for terms
 """
-from __future__ import print_function
-from __future__ import unicode_literals
-import subprocess
+from __future__ import print_function, unicode_literals
+
 import multiprocessing
-from os import mkdir, getuid, getcwd, environ, chdir, symlink, remove, unlink
-from os.path import dirname, realpath, join as join_path, abspath
-from datetime import datetime
 import pwd
 import shutil
 import subprocess as sp
 from contextlib import contextmanager
+from datetime import datetime
 from errno import EEXIST, ENOENT, ENOTEMPTY
-from time import sleep
+from os import chdir, environ, getcwd, getuid, mkdir, remove, symlink, unlink
 from os.path import (
-    isdir,
-    exists,
-    sep as DIRSEP)
+    abspath, dirname, exists, isdir, join as join_path, realpath,
+    sep as DIRSEP
+)
+from time import sleep
 
 CURDIR = cwd = dirname(abspath(__file__))
 # Basic required directories for a virtualenv
