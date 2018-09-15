@@ -9,9 +9,10 @@ __pycache__/
 # Distribution / packaging
 .Python
 packages/bin/virtualenv
-packages/bin/easy_setup
 packages/bin/pip
-env/
+packages/bin/easy_install
+packages/bin/pkginfo
+packages/bin/twine
 build/
 develop-eggs/
 dist/
@@ -77,11 +78,6 @@ target/
 # pyenv
 .python-version
 
-# celery beat schedule file
-celerybeat-schedule
-
-# SageMath parsed files
-*.sage.py
 
 # dotenv
 .env
@@ -92,15 +88,5 @@ venv/
 !venv/requirements.txt
 ENV/
 
-# Spyder project settings
-.spyderproject
-.spyproject
 
-# Rope project settings
-.ropeproject
 
-# mkdocs documentation
-/site
-
-# mypy
-.mypy_cache/
