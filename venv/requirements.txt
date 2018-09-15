@@ -8,11 +8,13 @@ pylint                          # linters..
 pylama                          # linter..
 isort                           # cleans up imports, configurable
 seed-isort-config               #  an isort companion
-twine                           # The "new" way to publish to a PyPi repository. Has cryptoz!!!11
 bandit                          # Static analysis for security issues
 pyt                             # Static analysis for security issues, specifically webaoos
 pydocstyle                      # Keep you on track with documentation style, per pydoc specs
 ipython                         # This will slow your build and bloat your venv, but it's nice to have
+setuptools
+wheel
+twine                           # The "new" way to publish to a PyPi repository. Has cryptoz!!!11
 # --- End suggested / "default" venv packages ---
 
 # --- Begin your own requirements ---
