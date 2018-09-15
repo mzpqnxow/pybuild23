@@ -29,7 +29,7 @@ from os.path import (
 )
 from time import sleep
 
-__version__ = '1.0'
+__version__ = '2018-09-15'
 
 CURDIR = cwd = dirname(abspath(__file__))
 # Basic required directories for a virtualenv
