@@ -14,14 +14,24 @@ Copyright (C) 2018
 Please see LICENSE or LICENSE.md for terms
 """
 from __future__ import print_function
-from contextlib import contextmanager
-from errno import ENOENT, ENOTEMPTY, EEXIST
-import os
+from __future__ import unicode_literals
+import subprocess
+import multiprocessing
+from os import mkdir, getuid, getcwd, environ, chdir, symlink, remove, unlink
+from os.path import dirname, realpath, join as join_path, abspath
+from datetime import datetime
 import pwd
 import shutil
 import subprocess as sp
+from contextlib import contextmanager
+from errno import EEXIST, ENOENT, ENOTEMPTY
 from time import sleep
+from os.path import (
+    isdir,
+    exists,
+    sep as DIRSEP)
 
+CURDIR = cwd = dirname(abspath(__file__))
 # Basic required directories for a virtualenv
 VENV_DIRS = set(['lib', 'bin', 'include'])
 # Taken from etc/
@@ -35,48 +45,53 @@ DEFAULT_VENV_BASE_PYTHON2 = '/usr/bin/python2'
 DEFAULT_VENV_BASE_PYTHON3 = '/usr/bin/python3'
 DEFAULT_VENV_BASE_PYTHON = DEFAULT_VENV_BASE_PYTHON2
 PYVERSION = 2
+CPU_COUNT = multiprocessing.cpu_count()
 
 
 def basic_env(cwd):
     """ Provide a clean environment with bare essentials """
     global PYVERSION
-    pent = pwd.getpwuid(os.getuid())
+    pent = pwd.getpwuid(getuid())
     env = dict()
     env['PYTHONPATH'] = '{}/packages/lib/python{}/site-packages/'.format(cwd, PYVERSION)
     env['HOME'] = pent.pw_dir
     env['SHELL'] = pent.pw_shell
     env['LOGNAME'] = pent.pw_name
-    env['PWD'] = os.getcwd()
-    for key in ('PATH', 'TERM', 'MAIL', 'VIRTUAL_ENV', 'PIP_CONFIG_FILE'):
-        if key in os.environ:
-            env[key] = os.environ[key]
-
+    env['PWD'] = getcwd()
+    # One can hope that these environment variables make it to a compiled native code build that
+    # uses GNU make. Pretty unlikely to work, and even less likely to occur, but doesn't hurt.
+    # Maybe numpy or pandas or cython or some such thing can benefit?
+    parallelism_count = '{}'.format((CPU_COUNT)) if CPU_COUNT == 1 else '{}'.format(CPU_COUNT - 1)
+    env['MAKEFLAGS'] = env['CONCURRENCY_LEVEL'] = parallelism_count
+    for key in ('PATH', 'TERM', 'MAIL'):
+        if key in environ:
+            env[key] = environ[key]
     return env
 
 
 @contextmanager
 def pushd(directory):
     """ Emulate Bash pushd/popd """
-    cwd = os.getcwd()
+    cwd = getcwd()
     try:
-        os.chdir(directory)
+        chdir(directory)
     except OSError as err:
         if err.errno == ENOENT:
             raise RuntimeError('%s does not exist !!' % directory)
         else:
             raise err
     yield
-    os.chdir(cwd)
+    chdir(cwd)
 
 
 def force_symlink(file1, file2):
     """ Be forceful about creating a symlink """
     try:
-        os.symlink(file1, file2)
+        symlink(file1, file2)
     except OSError, err:
         if err.errno == EEXIST:
-            os.remove(file2)
-            os.symlink(file1, file2)
+            remove(file2)
+            symlink(file1, file2)
 
 
 def destroy(explain, vdirs, cfg):
@@ -105,7 +120,7 @@ def destroy(explain, vdirs, cfg):
     print('%s: destroying %s' % (explain, (' '.join(cfg))))
     for cfgfile in cfg:
         try:
-            os.unlink(cfgfile)
+            unlink(cfgfile)
         except (IOError, OSError):
             pass
 
@@ -116,8 +131,12 @@ def invoke_virtualenv(virtualenv_exe, python, pipini, interactive, cwd):
     shutil.copy(interactive, '.interactive')
 
     try:
-        sp.check_call([python, virtualenv_exe, '--no-site-packages', '.'],
-                      env=basic_env(cwd))
+        print(basic_env(cwd))
+        print(python)
+        print(virtualenv_exe)
+        sp.check_call(
+            [python, virtualenv_exe, '--no-site-packages', '.'],
+            env=basic_env(cwd))
     except OSError as err:
         if err.errno == ENOENT:
             raise RuntimeError('Python %s does not exist !!' % python)
@@ -125,25 +144,103 @@ def invoke_virtualenv(virtualenv_exe, python, pipini, interactive, cwd):
             raise err
 
 
-def pip(pip_exe, ini, require, cwd):
+def freeze(*args, **kwargs):
+    pip(*args, **kwargs)
+
+
+def install(*args, **kwargs):
+    pip(*args, **kwargs)
+
+
+def mkdir_p(dirname):
+    """emulate mkdir -p behavior"""
+    path_stack = ''
+    for element in dirname.split(DIRSEP):
+        if not isdir(dirname):
+            if not element:
+                continue
+            path_stack = join_path(DIRSEP, path_stack, element)
+            if not isdir(path_stack):
+                mkdir(path_stack)
+
+
+def pip(pip_exe, ini, require, cwd, action='install'):
     """
         Set 'PIP_CONFIG_FILE' environment variable to ini, then call
         exe as pip using the require file.
     """
-    os.environ['PIP_CONFIG_FILE'] = ini
+    environ['PIP_CONFIG_FILE'] = ini
 
     req = None
     for req in require:
-        if os.path.exists(req):
+        if exists(req):
             break
     else:
         print('WARNING: none of %s exist, skipping pip' % (str(require)))
         return
-    # Use -I to ensure prepackaged dependencies are installed if specified in
-    # requirements.txt. Otherwise they are detected in the packages directory
-    # and not installed at all, requiring manually adding with pip after the
-    # venv is built
-    sp.check_call([pip_exe, 'install', '--pre', '-I', '-r', req], env=basic_env(cwd))
+    try:
+        mkdir_p(join_path(CURDIR, 'logs'))  # Root of repo
+    except OSError as err:
+        if err.errno == EEXIST:
+            pass
+        else:
+            print (err)
+            raise
+
+    pip_arguments = {
+        'install': [  # Perform an install
+            pip_exe,
+            'install',
+            '--compile',
+            '--progress-bar',
+            'off',
+            '--pre',
+            '-I',
+            '-r',
+            req],
+        'freeze': [  # Freeze versions in a built venv
+            pip_exe,
+            'freeze',
+            '--no-cache-dir',
+            '-l',
+            '-r',
+            req]  # Preserves comments and order
+    }
+    assert action in (pip_arguments)
+
+    if action == 'install':
+        # Use -I to ensure prepackaged dependencies are installed if specified in
+        # requirements.txt. Otherwise they are detected in the packages directory
+        # and not installed at all, requiring manually adding with pip after the
+        # venv is built
+        try:
+            sp.check_call(pip_arguments[action], env=basic_env(cwd))
+        except Exception as err:
+            # print('error invoking pip install {}'.format(err))
+            raise
+    elif action == 'freeze':
+        try:
+            byte_output = sp.check_output(pip_arguments[action], env=basic_env(cwd))
+            frozen_fullpath = frozen_requirements_fullpath(req)
+            with open(frozen_fullpath, 'wb') as ffd:
+                ffd.write(byte_output)
+                print('Writing stable, frozen requirements file to {}...'.format(frozen_fullpath))
+                utf8_output = byte_output.decode('utf-8').strip()
+                print(utf8_output)
+                print('# ---- END ---- #')
+        except subprocess.CalledProcessError as err:
+            print('error invoking pip freeze {}'.format(err))
+            raise
+
+
+def frozen_requirements_fullpath(req):
+    base_requirements_path = (join_path(dirname(realpath(req)), '..', 'repeatable-deployments'))
+    mkdir_p(base_requirements_path)
+    today_yyyymmdd = datetime.today().strftime('%Y-%m-%d')
+    frozen_filename = 'codefreeze-requirements.txt.frozen-deplay-{}'.format(today_yyyymmdd)
+    frozen_fullpath = '{}/{}'.format(
+        base_requirements_path, frozen_filename)
+    return frozen_fullpath
 
 
 def main():
@@ -160,6 +257,11 @@ def main():
                          dest='python',
                          default=DEFAULT_VENV_BASE_PYTHON,
                          help='specify the full path to python')
+    optparser.add_option('--freeze',
+                         action='store_true',
+                         dest='freeze',
+                         default=False,
+                         help='Freeze versions in a venv for future stability (saves requirements.txt first)')
     optparser.add_option('-d', '--destroy',
                          action='store_true',
                          dest='destroy',
@@ -193,13 +295,13 @@ def main():
     for appname in ('virtualenv', 'easy_install', 'pip', 'twine', 'pkginfo'):
         force_symlink(
             '{0}{1}'.format(appname, PYVERSION),
-            os.path.join('packages', 'bin', '{0}'.format(appname)))
+            join_path('packages', 'bin', '{0}'.format(appname)))
 
-    cwd = os.path.dirname(os.path.abspath(__file__))
+    cwd = dirname(abspath(__file__))
 
-    ini_load_path = os.path.join(cwd, 'etc/%s' % args.inifile)
-    virtualenv_run_path = os.path.join(cwd, 'packages/bin/virtualenv')
-    interactive_load_path = os.path.join(cwd, 'etc/interactive')
+    ini_load_path = join_path(cwd, 'etc/%s' % args.inifile)
+    virtualenv_run_path = join_path(cwd, 'packages/bin/virtualenv')
+    interactive_load_path = join_path(cwd, 'etc/interactive')
 
     try:
         with pushd(venv_dest[0]):
@@ -210,8 +312,10 @@ def main():
                                   ini_load_path,
                                   interactive_load_path,
                                   cwd)
+            if args.freeze:
+                pip('bin/pip', ini_load_path, PKG_REQUIREMENT_FILEPATHS, cwd, action='freeze')
 
-            files_exist = [os.path.exists(entry) for entry in VENV_DIRS | INI_FILES]
+            files_exist = [exists(entry) for entry in VENV_DIRS | INI_FILES]
             if not all(files_exist):
                 # at least one virtualenv dir missing
                 if any(files_exist):
@@ -225,7 +329,8 @@ def main():
                                   cwd)
 
             # always try to install the requirements.
-            pip('bin/pip', ini_load_path, PKG_REQUIREMENT_FILEPATHS, cwd)
+            pip('bin/pip', ini_load_path, PKG_REQUIREMENT_FILEPATHS, cwd, action='install')
+            # pip('bin/pip', ini_load_path, PKG_REQUIREMENT_FILEPATHS, cwd, acction='install')
 
     except RuntimeError as err:
         optparser.error(
