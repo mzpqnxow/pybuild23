@@ -29,6 +29,8 @@ from os.path import (
 )
 from time import sleep
 
+__version__ = '1.0'
+
 CURDIR = cwd = dirname(abspath(__file__))
 # Basic required directories for a virtualenv
 VENV_DIRS = set(['lib', 'bin', 'include'])
@@ -137,14 +139,6 @@ def invoke_virtualenv(virtualenv_exe, python, pipini, interactive, cwd):
             raise RuntimeError('Python %s does not exist !!' % python)
         else:
             raise err
-
-
-def freeze(*args, **kwargs):
-    pip(*args, **kwargs)
-
-
-def install(*args, **kwargs):
-    pip(*args, **kwargs)
 
 
 def mkdir_p(dirname):
