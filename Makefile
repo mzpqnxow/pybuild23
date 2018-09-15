@@ -46,7 +46,7 @@ PACKAGES := packages
 SYMLINKS := pip twine virtualenv pkginfo easy_install
 PYPIRC := $(ROOT_DIR)/pypirc.template
 STABLE_DEPLOYMENTS_PATH := repeatable-deployments/
-STABLE_DEPLOYMENT_FILE := codefreeze-requirements.txt.frozen-deploy-
+STABLE_DEPLOYMENT_FILE := requirements.txt-frozen-deploy-
 all: python2
 
 python2: $(VENV_DIR)
@@ -72,7 +72,7 @@ freeze:
           echo "Versions of all packages and their dependencies has been stashed in" && \
           echo "the $(STABLE_DEPLOYMENTS_PATH) directory. Press enter and it will be" && \
           echo -n "auto-added/committed for you, or press control-C to cancel ..." && \
-          git add $(STABLE_DEPLOYMENTS_PATH)/$(STABLE_DEPLOYMENT_FILE) && \
+          git add $(STABLE_DEPLOYMENTS_PATH)/$(STABLE_DEPLOYMENT_FILE)$(shell date +%Y-%m-%d) && \
           git commit -m 'Added a frozen requirements.txt file for stable deployment' 
 
 pypirc:

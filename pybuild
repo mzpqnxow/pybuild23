@@ -231,7 +231,7 @@ def frozen_requirements_fullpath(req):
     base_requirements_path = (join_path(dirname(realpath(req)), '..', 'repeatable-deployments'))
     mkdir_p(base_requirements_path)
     today_yyyymmdd = datetime.today().strftime('%Y-%m-%d')
-    frozen_filename = 'codefreeze-requirements.txt.frozen-deplay-{}'.format(today_yyyymmdd)
+    frozen_filename = 'requirements.txt-frozen-deploy-{}'.format(today_yyyymmdd)
     frozen_fullpath = '{}/{}'.format(
         base_requirements_path, frozen_filename)
     return frozen_fullpath

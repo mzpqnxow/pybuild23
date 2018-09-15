@@ -1,7 +1,5 @@
 flake8  # flake8 will also bring pycodestyle andpyflakes with it
-#pycodestyle
-#pyflakes
 pylint
-# isort is useful for cleaning up imports in large projects, configure it in setup.cfg
-isort
-seed-isort-config
+isort  # cleans up imports, you can configure it via setup.cfg or its own config file
+seed-isort-config  #  an isort companion
+twine  # Needed if you want to "properly" publish a package, though the `publish` target won't yet uset it

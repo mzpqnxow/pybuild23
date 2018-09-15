@@ -85,6 +85,10 @@ total 4
 ```
 Make sure you use this feature at the appropriate time as you don't want to memorialize broken deployment files. If you have problems building with newly developed libraries or your application itself, you can replace your current `requirements.txt` with the frozen one to reproduce a prior function deployment while you fix any regressions you have have introduced.
 
+## Default `venv/requirements.txt` entries - what's up with those?
+
+Packages that are considered useful for enforcing or measuring code quality will be included in the default list of packages, as well as tools to publish, such as `twine` which is officially in the process of replace the old-school ways of uploading Python packages. It's got encryptions!!111
+
 ## Common sense stuff, how virtual environments work, etc...
 
 Virtual environments are just self-contained Python installations, essentially. To build one, you typically use the `virtualenv` tool. You also use a `requirements.txt` file to tell `pip` which packages you need in your virtual environ. Using `make` abstracts all this from you. Using `pybuild` directly is also quite easy, but `make` is more convenient for sure.
