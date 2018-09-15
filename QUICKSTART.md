@@ -10,7 +10,7 @@ If you are starting with an empty project and nothing yet in source control, try
 
 ```
 $ $EDITOR venv/requirements.txt [add your dependencies into the file]
-$ make python3
+$ make && source venv/bin/activatec
 $ rm -rf .git
 $ [start your development and use git as usual]
 ```
@@ -20,7 +20,7 @@ $ [start your development and use git as usual]
 
 ```
 $ $EDITOR venv/requirements.txt [add your dependencies into the file]
-$ make
+$ make && source venv/bin/activate
 $ rm -rf .git
 $ [start your development and use git as usual]
 ```
@@ -48,3 +48,9 @@ $ git add venv Makefile packages etc
 $ git commit venv Makefile packages etc
 $ git push
 ``` 
+
+## If you have a project deployed via pybuild23 and you want to save the versions via pip freeze in a dated file
+
+```
+$ make freeze
+```
