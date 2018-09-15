@@ -25,6 +25,8 @@ That's all, everything else is built in.
 
 Clone your project from a GIT repo with `pybuild23` already installed. Tun `make && source venv/bin/activate`, and launch your project. That's all. Easy, repatable, deployment. See `make freeze` for more on the "repeatable" apsect of this.
 
+**NOTE**: the sample `pypirc` file and the `setup.cfg` file may need to be changed to fit your project name, organization name, internal Artifactory URL., etc..
+
 ## Basic usage
 
 
@@ -64,8 +66,7 @@ Does nothing, stops `Makefile` linters from complaining :>
 
 ### `make pypirc`
 
-A somewhat unique target. This will "install" a ~/.pypirc file in your home directory after some interactive prompts. If you plan to publish to PyPi or Artifactory, you will need a file this this, though you don't have to get it this way if you don't want, I suppose.
-
+Use this to generate a `~.pypirc` for publishing to PyPi repositories (PyPi or Artifactory are the most common). It is interactive. You may need to fill in some identifying info, i.e. URLs for internal Artifactory instances if you use them
 
 ### `make publish`
 
