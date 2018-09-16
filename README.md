@@ -3,7 +3,7 @@
 # pybuild23
 Streamline Python venv creation w/Python 2.6, 2.7 and 3.x using a simple make command. Common dependencies (pip, virtualenv, setuptools) included, all UNIXes and Linux distributions supported going back to Solaris, 9, AIX 5.1, RHEL 5.2, etc, etc.
 
-## Why is this "a thing" that ou spent time on?
+## Why is this "a thing" that you spent time on?
 
 It allows for quick, repeatable builds using just a simple `make` command. 
 
