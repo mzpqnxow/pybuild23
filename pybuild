@@ -13,23 +13,23 @@ Copyright (C) 2018
     David Marker <dave@freedave.net>
 Please see LICENSE or LICENSE.md for terms
 """
-from __future__ import print_function, unicode_literals
-
+from __future__ import print_function
+from __future__ import unicode_literals
+import subprocess
 import multiprocessing
+from os import mkdir, getuid, getcwd, environ, chdir, symlink, remove, unlink
+from os.path import dirname, realpath, join as join_path, abspath
+from datetime import datetime
 import pwd
 import shutil
 import subprocess as sp
 from contextlib import contextmanager
-from datetime import datetime
 from errno import EEXIST, ENOENT, ENOTEMPTY
-from os import chdir, environ, getcwd, getuid, mkdir, remove, symlink, unlink
-from os.path import (
-    abspath, dirname, exists, isdir, join as join_path, realpath,
-    sep as DIRSEP
-)
 from time import sleep
-
-__version__ = '2018-09-15'
+from os.path import (
+    isdir,
+    exists,
+    sep as DIRSEP)
 
 CURDIR = cwd = dirname(abspath(__file__))
 # Basic required directories for a virtualenv
@@ -58,9 +58,9 @@ def basic_env(cwd):
     env['SHELL'] = pent.pw_shell
     env['LOGNAME'] = pent.pw_name
     env['PWD'] = getcwd()
-    # One can hope that these parallelism variables make it to a compiled native code build that
-    # uses GNU make, which honors them. Maybe it won't work, but it doesn't hurt. Ideally maybe
-    # numpy, pandas, ffi, cython or some such thing can allow us to benefit from a parallel build
+    # One can hope that these environment variables make it to a compiled native code build that
+    # uses GNU make. Pretty unlikely to work, and even less likely to occur, but doesn't hurt.
+    # Maybe numpy or pandas or cython or some such thing can benefit?
     parallelism_count = '{}'.format((CPU_COUNT)) if CPU_COUNT == 1 else '{}'.format(CPU_COUNT - 1)
     env['MAKEFLAGS'] = env['CONCURRENCY_LEVEL'] = parallelism_count
     for key in ('PATH', 'TERM', 'MAIL'):
@@ -114,7 +114,7 @@ def destroy(explain, vdirs, cfg):
                 else:
                     raise err  # re-raise something is wrong.
         if not done:
-            # NFS or some filesystem locking issue
+            # SSHFS/NFS/CIFS/SMB or some other filesystem locking issue
             sleep(2)
 
     print('%s: destroying %s' % (explain, (' '.join(cfg))))
@@ -139,6 +139,14 @@ def invoke_virtualenv(virtualenv_exe, python, pipini, interactive, cwd):
             raise RuntimeError('Python %s does not exist !!' % python)
         else:
             raise err
+
+
+def freeze(*args, **kwargs):
+    pip(*args, **kwargs)
+
+
+def install(*args, **kwargs):
+    pip(*args, **kwargs)
 
 
 def mkdir_p(dirname):
@@ -195,7 +203,7 @@ def pip(pip_exe, ini, require, cwd, action='install'):
             '-r',
             req]  # Preserves comments and order
     }
-    assert action in pip_arguments
+    assert action in (pip_arguments)
 
     if action == 'install':
         # Use -I to ensure prepackaged dependencies are installed if specified in
@@ -205,27 +213,27 @@ def pip(pip_exe, ini, require, cwd, action='install'):
         try:
             sp.check_call(pip_arguments[action], env=basic_env(cwd))
         except Exception as err:
-            # print('error invoking pip install {}'.format(err))
+            print('error invoking pip install {}'.format(err))
             raise
     elif action == 'freeze':
         try:
             byte_output = sp.check_output(pip_arguments[action], env=basic_env(cwd))
             frozen_fullpath = frozen_requirements_fullpath(req)
             with open(frozen_fullpath, 'wb') as ffd:
-                print('Writing stable, frozen requirements file to {}...'.format(frozen_fullpath))
                 ffd.write(byte_output)
-                # utf8_output = byte_output.decode('utf-8').strip()
+                print('Writing stable, frozen requirements file to {}...'.format(frozen_fullpath))
+                utf8_output = byte_output.decode('utf-8').strip()
                 print('# ---- END ---- #')
-        except sp.CalledProcessError as err:
+        except subprocess.CalledProcessError as err:
             print('error invoking pip freeze {}'.format(err))
             raise
 
 
 def frozen_requirements_fullpath(req):
-    base_requirements_path = (join_path(dirname(realpath(req)), '..', 'repeatable-deployments'))
+    base_requirements_path = (join_path(dirname(realpath(req)), 'repeatable-deployments'))
     mkdir_p(base_requirements_path)
-    today_yyyymmdd = datetime.today().strftime('%Y-%m-%d')
-    frozen_filename = 'requirements.txt-frozen-deploy-{}'.format(today_yyyymmdd)
+    today_yyyymmdd = datetime.today().strftime('%Y-%m-%d.%s')
+    frozen_filename = 'codefreeze-requirements.txt.frozen-deplay-{}'.format(today_yyyymmdd)
     frozen_fullpath = '{}/{}'.format(
         base_requirements_path, frozen_filename)
     return frozen_fullpath
@@ -280,7 +288,7 @@ def main():
         DEFAULT_VENV_BASE_PYTHON = DEFAULT_VENV_BASE_PYTHON2
         PYVERSION = 2
 
-    for appname in ('virtualenv', 'easy_install', 'pip', 'twine', 'pkginfo'):
+    for appname in ('virtualenv', 'easy_install', 'pip'):
         force_symlink(
             '{0}{1}'.format(appname, PYVERSION),
             join_path('packages', 'bin', '{0}'.format(appname)))
@@ -315,6 +323,7 @@ def main():
                                   ini_load_path,
                                   interactive_load_path,
                                   cwd)
+
             # always try to install the requirements.
             pip('bin/pip', ini_load_path, PKG_REQUIREMENT_FILEPATHS, cwd, action='install')
 

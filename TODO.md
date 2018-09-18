@@ -10,4 +10,4 @@ But off the top of my head:
 * Think more about what "base metapackages" should be included in *every* Python project and add them to `venv/requirements.txt` where linters are already present
 * Switch the `publish` target to use the new Twine tools as old methods of publishing are officially deprecated. Twine has a lot of new security features, so it's probably a good idea.
 * More documentation regarding etc/pip.ini (that's actually really important your bootstrap and your virtualenv will use these settings
-* ...
+* Consider switching to utilizing `pipenv` over `requirements.txt` - may lose import functionality here thought.
