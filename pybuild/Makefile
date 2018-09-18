@@ -68,7 +68,7 @@ python3: $(VENV_DIR) $(BACK_RELATIVE_ACTIVATE)
 	@cd $(ROOT_DIR) && $(PYBUILD) -p $(PYTHON3) --python3 $(VENV_DIR)
 
 $(BACK_RELATIVE_ACTIVATE):
-       @cd $(ROOT_DIR) && ln -sf $(RELATIVE_ACTIVATE) $(BACK_RELATIVE_ACTIVATE)
+	@cd $(ROOT_DIR) && ln -sf $(RELATIVE_ACTIVATE) $(BACK_RELATIVE_ACTIVATE)
 
 $(VENV_DIR):
 	@echo "----"
@@ -136,7 +136,7 @@ pypirc:
           echo "Installation complete, `make publish` should now work for you" 
 
 new:
-       set -e; \
+	set -e; \
        	cd $(ROOT_DIR) && \
          export REPO_STRIPPED=$$(echo $(REPO) | sed -e 's|\.git||') && \
          export REPO_BASENAME=$$(basename $$REPO_STRIPPED) && \
