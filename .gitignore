@@ -85,7 +85,7 @@ target/
 # virtualenv
 .venv
 venv/
-!venv/requirements.txt
+!venv/*requirements*.txt
 ENV/
 
 

@@ -94,7 +94,10 @@ publish:
 push: publish
 
 freeze:
-	$(PYBUILD) --freeze $(VENV_DIR) && ls -lr $(VENV_DIR)/
+	$(PYBUILD) --freeze $(VENV_DIR) \
+          && echo && echo "Froze virtual environment requirements in venv/:" && \
+          ls -lr venv/codefreeze-requirements.txt* | tail -1 | awk '{print $9}' && \
+          echo ""
 
 pypirc:
 	@echo '-------- Jet PyPirc Installation --------'
