@@ -142,7 +142,6 @@ pypirc:
           echo "Installation complete, `make publish` should now work for you" 
 
 new:
-	/bin/false
 	set -e; \
        	cd $(ROOT_DIR) && \
          export REPO_STRIPPED=$$(echo $(REPO) | sed -e 's|\.git||') && \
