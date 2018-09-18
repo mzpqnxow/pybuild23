@@ -1,6 +1,6 @@
 #!/bin/sh
 if [ -z $EDITOR ]; then
   EDITOR=vi
-else
+fi
 
-$EDITOR pybuild/venv/requirements.txt
+$EDITOR venv/requirements.txt
