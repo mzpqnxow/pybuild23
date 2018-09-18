@@ -1,4 +1,4 @@
-#!/home/debian/Downloads/OpenVPN256/binwalk/pybuild23/pybuild/venv/bin/python3
+#!/usr/bin/python3.5
 
 # -*- coding: utf-8 -*-
 import re
