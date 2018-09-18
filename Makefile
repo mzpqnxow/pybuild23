@@ -1,5 +1,5 @@
-#############################################################################
-# Universal pybuild @ Company.com Makefile
+#
+# Universal pybuild @ Jet Makefile
 # Supported Targets:
 #  - all: Default target, build a python2 virtual environment in venv/
 #         Customize and commit venv/requirements.txt to your repo
@@ -13,7 +13,7 @@
 #  - publish: Publishes a package based on the contents of your ~/.pypirc
 #             file
 #  - pypirc: Dynamically/interactively creates a ~/.pypirc configured for
-#            user with Company  Artifactory. Only needed once on any given
+#            user with Jet Artifactory. Only needed once on any given
 #            system, not per project, since pypirc is global to the user
 #            and not respected by virtualenv
 #
@@ -23,16 +23,12 @@
 #
 # How does this work? This is all from pybuild, an old project of mine
 # and a friend, @ github.com/mzpqnxow/pybuild23. It is public and free
-# but copyrighted by me. It was not developed on Company time and
-# actually predates my current employer by quite a bit, though the
-# repository has been created and destroyed several times over the last
-# few years. There are at least a few commits with the wrong ~/.gitconfig
-# setting, so about 95% of commits were made from home with my account
-# information, while 5% were made with another company ID, as I was working
-# on company code at the time. :>#
+# but copyrighted by me. It was not developed on Jet time and actually
+# predates Jet by quite a bit, though the repository has been created
+# and destroyed several times over the last few years
 #
 # - AG, 2018
-##############################################################################
+#
 ROOT_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 PYTHON = /usr/bin/python
 PYTHON3 = /usr/bin/python3
@@ -45,8 +41,8 @@ COPY_FILES := etc packages pybuild examples/Makefile venv
 PACKAGES := packages
 SYMLINKS := pip twine virtualenv pkginfo easy_install
 PYPIRC := $(ROOT_DIR)/pypirc.template
-STABLE_DEPLOYMENTS_PATH := repeatable-deployments/
-STABLE_DEPLOYMENT_FILE := requirements.txt-frozen-deploy-
+CC := gcc
+
 all: python2
 
 python2: $(VENV_DIR)
@@ -63,32 +59,57 @@ $(VENV_DIR):
 	@echo "----"
 	@mkdir -p $(VENV_DIR)
 
+#
+# By default, make release will:
+#  - tag your current branch
+#      $ make release bump=major
+#      $ make release bump=minor
+#      $ make release
+#  - Publish your Python package to your PyPi repository with the new tag
+#  - Perform a git push on any committed changes you have
+#  - Perform a git push --tags to add the new tag to git
+#
+#
+release:
+	$(eval v := $(shell git describe --tags --abbrev=0 | sed -Ee 's/^v|-.*//'))
+ifeq ($(bump), major)
+	$(eval f := 1)
+else ifeq ($(bump), minor)
+	$(eval f := 2)
+else
+	$(eval f := 3)
+endif
+	git tag `echo $(v) | awk -F. -v OFS=. -v f=$(f) '{ $$f++ } 1'`
+	python setup.py sdist upload -r local
+	git commit -am "Bumped to version `echo $(v) | awk -F. -v OFS=. -v f=$(f) '{ $$f++ } 1'`"
+	git push
+	git push --tags
+
 publish:
-	git push && python setup.py sdist upload -r local && \
-	make clean
+	git push
+#	python setup.py sdist upload -r local
+#	git push && python setup.py sdist upload -r local
+#	make clean
+
+push: publish
 
 freeze:
-	$(PYBUILD) --freeze $(VENV_DIR) && \
-          echo "Versions of all packages and their dependencies has been stashed in" && \
-          echo "the $(STABLE_DEPLOYMENTS_PATH) directory. Press enter and it will be" && \
-          echo -n "auto-added/committed for you, or press control-C to cancel ..." && \
-          git add $(STABLE_DEPLOYMENTS_PATH)/$(STABLE_DEPLOYMENT_FILE)$(shell date +%Y-%m-%d) && \
-          git commit -m 'Added a frozen requirements.txt file for stable deployment' 
+	$(PYBUILD) --freeze $(VENV_DIR) && ls -lr $(VENV_DIR)/
 
 pypirc:
-	@echo '-------- Company PyPirc Installation --------'
+	@echo '-------- Jet PyPirc Installation --------'
 	echo ''
-	echo 'Follow the prompts to install a ~/.pypirc file that allows you to publish to Company Artifactory'
+	echo 'Follow the prompts to install a ~/.pypirc file that allows you to publish to Jet Artifactory'
 	echo 'WARN: This is a global configuration file for your username ($$USER)'
 	echo 'NOTICE: Any existing ~/.pypirc will be backed up in ~/.pypirc.bak.*'
-	echo '-------- Company AD PyPirc Crdentials --------'
+	echo '-------- Jet PyPirc Crdentials --------'
 	echo 'Please enter your credentials and a PyPirc file will be created'
 	echo 'SECURITY: The file will be stored mode 0600 in ~/.pypirc, private from other users :>'
 	echo
 	cp ~/.pypirc ~/.pypirc.bak.$(date +%s) && \
-	echo -n 'Please enter Company AD username (without @company.com): ' && \
+	echo -n 'Please enter JET.local username (without @jet.com): ' && \
 	read user && \
-	echo -n 'Please enter Company AD password: ' && \
+	echo -n 'Please enter JET.local password: ' && \
 	read pass && \
 	sed \
           -e "s/%%USER%%/$$user/" \
@@ -99,18 +120,18 @@ pypirc:
 
 
 clean:
-	TMPFILE=`mktemp` && \
-	  cp venv/requirements.txt $$TMPFILE && \
+	TMPDIR=`mktemp -d` && \
+	  cp venv/*requirements*.txt $$TMPDIR/ && \
           rm -rf $(VENV_DIR) && \
           mkdir $(VENV_DIR) && \
-          mv $$TMPFILE $(VENV_DIR)/requirements.txt && \
-          rm -f $(PACKAGES)/{$(SYMLINKS)}
+          mv $$TMPDIR/*requirements*.txt $(VENV_DIR)/ && \
+          rm -f $(PACKAGES)/{$(SYMLINKS)} && \
+          rm -rf $(BUILD_FILES) && \
+          rm -rf $$TMPDIR
+
+distclean:
+	@rm -rf $(BUILD_FILES)
 
 rebuild: clean all
-again: rebuild  # Aliases
-more: rebuild  # Aliases
 
-test:
-	echo IT WORKS
-
-.PHONY:	python2 python3 rebuild clean pypirc publish all test
+.PHONY:	python2 python3 rebuild clean pypirc publish
