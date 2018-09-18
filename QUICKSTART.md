@@ -2,6 +2,10 @@
 
 Skip the README and get started
 
+## First...
+
+Try the -devel branch ... the layout might be less overwhelming to the eye, and less confusing
+
 ## Starting a fresh project
 
 If you are starting with an empty project and nothing yet in source control, try this
