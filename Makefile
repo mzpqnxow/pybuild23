@@ -85,6 +85,8 @@ endif
 	git push
 	git push --tags
 
+
+
 publish:
 	git push
 #	python setup.py sdist upload -r local
@@ -122,6 +124,31 @@ pypirc:
           chmod 600 ~/.pypirc && \
           echo "Installation complete, `make publish` should now work for you" 
 
+new:
+	/bin/false
+	set -e; \
+       	cd $(ROOT_DIR) && \
+         export REPO_STRIPPED=$$(echo $(REPO) | sed -e 's|\.git||') && \
+         export REPO_BASENAME=$$(basename $$REPO_STRIPPED) && \
+         git clone $$REPO_STRIPPED && \
+         pwd && \
+         cp -r $(PROJECT_FILES) $$REPO_BASENAME/ && \
+         export REPO_VENV=$$REPO_BASENAME/$(VENV_DIR) && \
+         mkdir -p $$REPO_VENV && \
+         cp $(VENV_DIR)/requirements.txt $$REPO_VENV && \
+         mv $$REPO_BASENAME ../ ; x=$$PWD; cd ../$$REPO_BASENAME; \
+         git add . && \
+         git commit -m "Installing pybuild environment" . && \
+         git push && \
+         cd $$x ; \
+         echo ; \
+         echo "pybuild: Completed, project $$REPO_BASENAME now has pybuild skeleton checked in !!" \
+         echo ; \
+         echo "Use to following to work on your new project:" && \
+         echo ; \
+         echo "    $ cd ../$$REPO_BASENAME" && \
+         echo "    $ git log" && \
+         echo
 
 clean:
 	TMPDIR=`mktemp -d` && \
