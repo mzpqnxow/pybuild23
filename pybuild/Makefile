@@ -100,18 +100,24 @@ else ifeq ($(bump), minor)
 else
 	$(eval f := 3)
 endif
-	git tag `echo $(v) | awk -F. -v OFS=. -v f=$(f) '{ $$f++ } 1'`
-	python setup.py sdist upload -r local
+	cd $(ROOT_DIR)/../ && \
+        git tag `echo $(v) | awk -F. -v OFS=. -v f=$(f) '{ $$f++ } 1'` && \
+	python setup.py sdist upload -r local && \
 	git commit CHANGELOG.md -m "Bumped to version `echo $(v) | \
 	  awk -F. -v OFS=. -v f=$(f) '{ $$f++ } 1'`"
-	git push
+	git push && \
 	git push --tags
 
 push:
 	git push
 
 freeze:
-	$(PYBUILD) --freeze $(VENV_DIR) 
+	cd $(ROOT_DIR) && $(PYBUILD) --freeze $(VENV_DIR) && \
+      echo '' && \
+      echo "Froze virtual environment requirements in venv/:" && \
+      echo `ls -lr $(VENV_DIR)/codefreeze-* | tail -1` && \
+      git add -f `ls -lr $(VENV_DIR)/codefreeze-* | tail -1 | awk '{print $$9}'`
+
 
 pypirc:
 	@echo '-------- Jet PyPirc Installation --------'
@@ -123,7 +129,7 @@ pypirc:
 	echo 'Please enter your credentials and a PyPirc file will be created'
 	echo 'SECURITY: The file will be stored mode 0600 in ~/.pypirc, private from other users :>'
 	echo
-	cp ~/.pypirc ~/.pypirc.bak.$(date +%s) && \
+	touch ~/.pypirc && cp ~/.pypirc ~/.pypirc.bak.$(date +%s) && \
 	echo -n 'Please enter JET.local username (without @jet.com): ' && \
 	read user && \
 	echo -n 'Please enter JET.local password: ' && \
@@ -136,6 +142,7 @@ pypirc:
           echo "Installation complete, `make publish` should now work for you" 
 
 new:
+	/bin/false
 	set -e; \
        	cd $(ROOT_DIR) && \
          export REPO_STRIPPED=$$(echo $(REPO) | sed -e 's|\.git||') && \
@@ -165,7 +172,7 @@ check_root:
 
 
 clean: check_root
-	@cd $(ROOT_DIR) && TMPDIR=`mktemp -d` && \
+	@cd $(ROOT_DIR) && TMPDIR=`mktemp -d --suffix pybuild23` && \
 	  cp venv/*requirements*.txt $$TMPDIR/ && \
           rm -rf $(VENV_DIR) && \
           mkdir $(VENV_DIR) && \
