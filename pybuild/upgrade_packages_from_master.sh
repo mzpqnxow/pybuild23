@@ -20,4 +20,4 @@ git clone https://github.com/mzpqnxow/pybuild23 && \
   cp -r pybuild23/packages . && \
   rm -rf pybuild23 &&
   git add packages &&
-  git commit -m 'Hotfix for pybuild23 pip 10.0 incident ...' pybuild packages
+  git commit -m 'Updated pybuild packages !! ...' pybuild packages
