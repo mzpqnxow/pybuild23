@@ -37,14 +37,15 @@
 #
 # - AG, 2018
 #
-ROOT_DIR:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
+ROOT_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 PYTHON2 = `which python2`
 PYTHON3 = `which python3`
 PYTHON = $(PYTHON2)
 RUNNING_USER = `whoami`
 VENV_DIR = $(ROOT_DIR)/venv/
 RM_RF := /bin/rm -rf
-PYBUILD := ./pybuild
+PYBUILD_DIR := $(ROOT_DIR)
+PYBUILD_BIN := pybuild
 BUILD_FILES := build dist *.egg-info
 PROJECT_FILES := etc packages pybuild .gitignore examples/Makefile
 COPY_FILES := etc packages pybuild examples/Makefile venv
@@ -100,7 +101,7 @@ else ifeq ($(bump), minor)
 else
 	$(eval f := 3)
 endif
-	cd $(ROOT_DIR)/../ && \
+	cd $(ROOT_DIR) && \
         git tag `echo $(v) | awk -F. -v OFS=. -v f=$(f) '{ $$f++ } 1'` && \
 	python setup.py sdist upload -r local && \
 	git commit CHANGELOG.md -m "Bumped to version `echo $(v) | \
@@ -141,28 +142,35 @@ pypirc:
           chmod 600 ~/.pypirc && \
           echo "Installation complete, `make publish` should now work for you" 
 
-new:
+
+
+#         export REPO_VENV=$$REPO_BASENAME/venv && \
+#         mkdir -p $$REPO_VENV && \
+#         cp $(VENV_DIR)/requirements.txt $$REPO_VENV && \
+
+
+new: clean
 	set -e; \
        	cd $(ROOT_DIR) && \
          export REPO_STRIPPED=$$(echo $(REPO) | sed -e 's|\.git||') && \
          export REPO_BASENAME=$$(basename $$REPO_STRIPPED) && \
-         git clone $$REPO_STRIPPED && \
-         pwd && \
-         cp -r $(PROJECT_FILES) $$REPO_BASENAME/ && \
-         export REPO_VENV=$$REPO_BASENAME/$(VENV_DIR) && \
-         mkdir -p $$REPO_VENV && \
-         cp $(VENV_DIR)/requirements.txt $$REPO_VENV && \
-         mv $$REPO_BASENAME ../ ; x=$$PWD; cd ../$$REPO_BASENAME; \
-         git add . && \
-         git commit -m "Installing pybuild environment" . && \
-         git push && \
-         cd $$x ; \
+         git clone $$REPO_STRIPPED $$REPO_BASENAME && \
+         rm -rf $$REPO_BASENAME/pybuild && mkdir $$REPO_BASENAME/pybuild && cp -r * $$REPO_BASENAME/pybuild && \
+         echo "done installing pybuild into project, moving up and out of pybuild directory" && \
+         if [ -e ../../$$REPO_BASENAME ]; then echo "ERROR: directory ../../$$REPO_BASENAME already exists ..."; /bin/false; fi; \
+         mv $$REPO_BASENAME ../../ ; cd ../../$$REPO_BASENAME && \
+         ln -sf pybuild/venv/requirements.txt && \
+         echo NORMALLY git add . && \
+         echo NORMALLY: git commit -m "Installing pybuild environment" . && \
+         echo NORMALLY: git push && \
          echo ; \
          echo "pybuild: Completed, project $$REPO_BASENAME now has pybuild skeleton checked in !!" \
          echo ; \
          echo "Use to following to work on your new project:" && \
          echo ; \
-         echo "    $ cd ../$$REPO_BASENAME" && \
+         echo "    $ cd ../../$$REPO_BASENAME" && \
+         echo "    $ git add ." && \
+         echo "    $ git commit -m 'initial import with pybuild" && \
          echo "    $ git log" && \
          echo
 
