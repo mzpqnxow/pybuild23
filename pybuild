@@ -62,7 +62,9 @@ def basic_env(cwd):
     # uses GNU make. Pretty unlikely to work, and even less likely to occur, but doesn't hurt.
     # Maybe numpy or pandas or cython or some such thing can benefit?
     parallelism_count = '{}'.format((CPU_COUNT)) if CPU_COUNT == 1 else '{}'.format(CPU_COUNT - 1)
-    env['MAKEFLAGS'] = env['CONCURRENCY_LEVEL'] = parallelism_count
+    # Hope it counts, especially for big packages
+    env['MAKEFLAGS'] = '-j{}'.format(parallelism_count)
+    env['CONCURRENCY_LEVEL'] = parallelism_count
     for key in ('PATH', 'TERM', 'MAIL'):
         if key in environ:
             env[key] = environ[key]
