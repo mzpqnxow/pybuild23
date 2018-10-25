@@ -1,5 +1,6 @@
 #
-# Universal pybuild @ Jet Makefile
+# Universal pybuild for Python2 and Python3 on Linux
+# MacOS works, with some tweaks (use PYTHON=/path/to/system/python)
 # Supported Targets:
 #  - all: Default target, build a python2 virtual environment in venv/
 #         Customize and commit venv/requirements.txt to your repo
@@ -13,7 +14,7 @@
 #  - publish: Publishes a package based on the contents of your ~/.pypirc
 #             file
 #  - pypirc: Dynamically/interactively creates a ~/.pypirc configured for
-#            user with Jet Artifactory. Only needed once on any given
+#            user with Artifactory. Only needed once on any given
 #            system, not per project, since pypirc is global to the user
 #            and not respected by virtualenv
 #
@@ -22,10 +23,7 @@
 # but there's really no reason to change the venv dir IMO.
 #
 # How does this work? This is all from pybuild, an old project of mine
-# and a friend, @ github.com/mzpqnxow/pybuild23. It is public and free
-# but copyrighted by me. It was not developed on Jet time and actually
-# predates Jet by quite a bit, though the repository has been created
-# and destroyed several times over the last few years
+# and a friend, @ github.com/mzpqnxow/pybuild23
 #
 # - AG, 2018
 #
@@ -39,26 +37,67 @@ BUILD_FILES := build dist *.egg-info
 PROJECT_FILES := etc packages pybuild .gitignore examples/Makefile
 COPY_FILES := etc packages pybuild examples/Makefile venv
 PACKAGES := packages
-SYMLINKS := pip twine virtualenv pkginfo easy_install
-PYPIRC := $(ROOT_DIR)/pypirc.template
-CC := gcc
+SYMLINKS := pip virtualenv easy_install
+PYPIRC := $(ROOT_DIR)/.pypirc.template
+CC := $(shell which gcc)
+TWINE = $(shell which twine)
+DEPENDENCIES = twine rm git cp mv mktemp dirname realpath
+REQUIREMENTS_TXT := venv/requirements.txt
+# If requirements.txt gets hosed, build a new, sane one
+REQUIREMENTS_TXT_CONTENT := "\
+\# Many of these packages pull in other linters and static analysis tools\n\
+\# as well, so check venv/bin after you build and see what's there. These\n\
+\# are mostly small modules and only add 30 seconds or so to your virtual\n\
+\#environment build time. But you're free to remove them of course.\n\
+\# --- Begin suggested / "default" venv packages ---\n\
+flake8				            \# Wraps pyflakes, pycodestyle and mccabe\n\
+pylint                          \# linters..\n\
+pylama                          \# linter..\n\
+isort                           \# cleans up imports, configurable\n\
+seed-isort-config               \#  an isort companion\n\
+bandit                          \# Static analysis for security issues\n\
+pyt                             \# Static analysis for security issues, specifically webaoos\n\
+pydocstyle                      \# Keep you on track with documentation style, per pydoc specs\n\
+ipython                         \# This will slow your build and bloat your venv, but it's nice to have\n\
+setuptools\n\
+wheel\n\
+twine                           \# The "new" way to publish to a PyPi repository\n\
+\# --- End suggested / "default" venv packages ---\n\
+\n\
+\# --- Begin your own requirements ---\n\
+"
+
+test:
+	
+
+
+K := $(foreach exec,$(DEPENDENCIES),\
+        $(if $(shell which $(exec)),some string,$(error "No $(exec) in PATH)))
 
 all: python2
 
-python2: $(VENV_DIR)
+python2: $(REQUIREMENTS_TXT)
 	@echo "Executing pybuild (`basename $(PYBUILD)` -p $(PYTHON) $(VENV_DIR))"
 	@$(PYBUILD) -p $(PYTHON) $(VENV_DIR)
 
-python3: $(VENV_DIR)
+python3: $(REQUIREMENTS_TXT)
 	@echo "Executing pybuild (`basename $(PYBUILD)` -p $(PYTHON3) $(VENV_DIR))"
 	@$(PYBUILD) -p $(PYTHON3) --python3 $(VENV_DIR)
 
+$(REQUIREMENTS_TXT): $(VENV_DIR)
+	@echo $(REQUIREMENTS_TXT_CONTENT) > $(REQUIREMENTS_TXT)
+
 $(VENV_DIR):
 	@echo "----"
-	@echo "WARN: VENV_DIR does not exist, creating it with no requirements"
+	@echo "WARN: VENV_DIR does not exist, creating it with no requirements.txt"
 	@echo "----"
 	@mkdir -p $(VENV_DIR)
+	@echo <<"EOF" \
 
+
+#
+# This target is meant for use with versioneer !!
+# To install versioneer, see the github.com page
 #
 # By default, make release will:
 #  - tag your current branch
@@ -69,7 +108,6 @@ $(VENV_DIR):
 #  - Perform a git push on any committed changes you have
 #  - Perform a git push --tags to add the new tag to git
 #
-#
 release:
 	$(eval v := $(shell git describe --tags --abbrev=0 | sed -Ee 's/^v|-.*//'))
 ifeq ($(bump), major)
@@ -79,19 +117,17 @@ else ifeq ($(bump), minor)
 else
 	$(eval f := 3)
 endif
-	git tag `echo $(v) | awk -F. -v OFS=. -v f=$(f) '{ $$f++ } 1'`
-	python setup.py sdist upload -r local
-	git commit -am "Bumped to version `echo $(v) | awk -F. -v OFS=. -v f=$(f) '{ $$f++ } 1'`"
-	git push
+	git tag -a `echo $(v) | awk -F. -v OFS=. -v f=$(f) '{ $$f++ } 1'` && \
+    python setup.py sdist || (rm -rf dist/ ;  echo Failed to build sdist ; /bin/false)
+	$(TWINE) upload -r local dist/* --verbose || rm -rf $(BUILD_FILES)
+	rm -rf $(BUILD_FILES)
+	git commit -am "Bumped to version `echo $(v) | awk -F. -v OFS=. -v f=$(f) '{ $$f++ } 1'`" || /bin/true
 	git push --tags
 
+publish: $(PIP_CONF)
+	$(PYTHON) setup.py sdist upload -r local
+	$(TWINE) upload -r local dist/* --verbose || rm -rf $(BUILD_FILES)
 
-
-publish:
-	git push
-#	python setup.py sdist upload -r local
-#	git push && python setup.py sdist upload -r local
-#	make clean
 
 push: publish
 
@@ -103,20 +139,23 @@ freeze:
           git add -f `ls -lr $(VENV_DIR)/codefreeze-* | tail -1 | awk '{print $$9}'`
 
 pypirc:
-	@echo '-------- Jet PyPirc Installation --------'
-	echo ''
-	echo 'Follow the prompts to install a ~/.pypirc file that allows you to publish to Jet Artifactory'
-	echo 'WARN: This is a global configuration file for your username ($$USER)'
-	echo 'NOTICE: Any existing ~/.pypirc will be backed up in ~/.pypirc.bak.*'
-	echo '-------- Jet PyPirc Crdentials --------'
-	echo 'Please enter your credentials and a PyPirc file will be created'
-	echo 'SECURITY: The file will be stored mode 0600 in ~/.pypirc, private from other users :>'
-	echo
-	cp ~/.pypirc ~/.pypirc.bak.$(date +%s) && \
-	echo -n 'Please enter JET.local username (without @jet.com): ' && \
+	@echo '-------- Credentialed PyPirc Installation --------'
+	@echo ''
+	@echo 'Follow the prompts to install a ~/.pypirc file that allows you to publish to an Artifactory PyPi'
+	@echo 'WARN: This is a global configuration file for your username ($$USER)'
+	@echo 'NOTICE: Any existing ~/.pypirc will be backed up in ~/.pypirc.bak.*'
+	@echo '-------- PyPirc Crdentials --------'
+	@echo
+	@echo 'Please enter your credentials and a PyPirc file will be created'
+	@echo 'SECURITY: The file will be stored mode 0600 in ~/.pypirc, private from other users :>'
+	@echo
+	@if [ -e "~/.pypirc" ]; then cp -f ~/.pypirc ~/.pypirc.bak.$(date +%s) 2>/dev/null || /bin/true; fi 
+	@echo -n 'Please enter username: ' && \
 	read user && \
-	echo -n 'Please enter JET.local password: ' && \
+	echo -n 'Please enter password (will not be printed to screen): ' && \
+	stty -echo && \
 	read pass && \
+	stty echo && \
 	sed \
           -e "s/%%USER%%/$$user/" \
           -e "s/%%PASS%%/$$pass/" \
@@ -165,4 +204,4 @@ distclean:
 
 rebuild: clean all
 
-.PHONY:	python2 python3 rebuild clean pypirc publish
+.PHONY:	python2 python3 rebuild clean pypirc publish distclean freeze

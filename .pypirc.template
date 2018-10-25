@@ -9,6 +9,10 @@
 index-servers = local
 
 [local]
-repository: https://artifacts.somedomain.domain/api/pypi/python-local
-username: XXX
-password: XXX
+#
+# Change the domain to point to your local PyPi (Artifactory, or public PyPi)
+# This is set for artifactory, plug your company name in
+#
+repository: https://artifacts.somecompany.com/api/pypi/python-local
+username: %%USER%%
+password: %%PASSWORD%%
