@@ -34,8 +34,8 @@ VENV_DIR = venv/
 RM_RF := /bin/rm -rf
 PYBUILD := ./pybuild
 BUILD_FILES := build dist *.egg-info
-PROJECT_FILES := etc packages pybuild .gitignore examples/Makefile
-COPY_FILES := etc packages pybuild examples/Makefile venv
+PROJECT_FILES := etc packages pybuild .gitignore Makefile
+COPY_FILES := etc packages pybuild Makefile venv
 PACKAGES := packages
 SYMLINKS := pip virtualenv easy_install
 PYPIRC := $(ROOT_DIR)/.pypirc.template
@@ -67,14 +67,29 @@ twine                           \# The "new" way to publish to a PyPi repository
 \# --- Begin your own requirements ---\n\
 "
 
-test:
-	
-
-
 K := $(foreach exec,$(DEPENDENCIES),\
         $(if $(shell which $(exec)),some string,$(error "No $(exec) in PATH)))
 
-all: python2
+all:
+	@echo '----------|'
+	@echo 'PyBuild23 |'
+	@echo '------------------------------------------------------------------------'	
+	@echo 'Please use a target such as python2, python3, new, clean, pypirc, etc ..'	
+	@echo '------------------------------------------------------------------------'
+	@echo 'python2   | Create a Python 2.6 or 2.7 based virtual environment'
+	@echo 'python3   | Create a Python 3.x based virtual environment'
+	@echo 'clean     | Clean the current virtual environment'
+	@echo 'rebuild   | Clean and rebuild a 2.6 or 2.7 based virtual environment'
+	@echo 'new       | Add pybuild23 into an existing (preferably empty) git project using REPO=protocol://project.uri'
+	@echo 'pypirc    | Create a basic ~/.pypirc file from a template'
+	@echo 'release   | Publish a package when using versioneer and setuptools (autobump)'	
+	@echo '...       | Read Makefile or documentation for more targets'
+	@echo '------------------------------------------------------------------------'
+	@echo 
+	@echo '** Edit venv/requirements.txt and commit to set virtual environment dependencies' 
+	@echo '** Edit etc/pip.ini for a custom environment (if using Artifactory or other "special" PyPi server)'
+	@echo '** Use the "release" target if using git and versioneer and with a configured ~/.pypirc' 
+	@echo 
 
 python2: $(REQUIREMENTS_TXT)
 	@echo "Executing pybuild (`basename $(PYBUILD)` -p $(PYTHON) $(VENV_DIR))"
@@ -164,7 +179,6 @@ pypirc:
           echo "Installation complete, `make publish` should now work for you" 
 
 new:
-	/bin/false
 	set -e; \
        	cd $(ROOT_DIR) && \
          export REPO_STRIPPED=$$(echo $(REPO) | sed -e 's|\.git||') && \
