@@ -42,7 +42,7 @@ PYPIRC := $(ROOT_DIR)/.pypirc.template
 CC := $(shell which gcc)
 TWINE = $(shell which twine)
 DEPENDENCIES = twine rm git cp mv mktemp dirname realpath
-REQUIREMENTS_TXT := venv/requirements.txt
+REQUIREMENTS_TXT := $(ROOT_DIR)/venv/requirements.txt
 # If requirements.txt gets hosed, build a new, sane one
 REQUIREMENTS_TXT_CONTENT := "\
 \# Many of these packages pull in other linters and static analysis tools\n\
@@ -91,11 +91,13 @@ all:
 	@echo '** Use the "release" target if using git and versioneer and with a configured ~/.pypirc' 
 	@echo 
 
-python2: $(REQUIREMENTS_TXT)
+requirements: $(REQUIREMENTS_TXT)
+
+python2: $(VENV_DIR) clean
 	@echo "Executing pybuild (`basename $(PYBUILD)` -p $(PYTHON) $(VENV_DIR))"
 	@$(PYBUILD) -p $(PYTHON) $(VENV_DIR)
 
-python3: $(REQUIREMENTS_TXT)
+python3: $(VENV_DIR) clean
 	@echo "Executing pybuild (`basename $(PYBUILD)` -p $(PYTHON3) $(VENV_DIR))"
 	@$(PYBUILD) -p $(PYTHON3) --python3 $(VENV_DIR)
 
@@ -204,7 +206,7 @@ new:
          echo
 
 clean:
-	TMPDIR=`mktemp -d` && \
+	@TMPDIR=`mktemp -d` && \
 	  cp venv/*requirements*.txt $$TMPDIR/ && \
           rm -rf $(VENV_DIR) && \
           mkdir $(VENV_DIR) && \
