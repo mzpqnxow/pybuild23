@@ -2,7 +2,7 @@
 # as well, so check venv/bin after you build and see what's there. These
 # are mostly small modules and only add 30 seconds or so to your virtual
 #environment build time. But you're free to remove them of course.
-# --- Begin suggested / "default" venv packages ---
+# --- Begin suggested / default venv packages ---
 flake8				            # Wraps pyflakes, pycodestyle and mccabe
 pylint                          # linters..
 pylama                          # linter..
@@ -14,7 +14,7 @@ pydocstyle                      # Keep you on track with documentation style, pe
 ipython                         # This will slow your build and bloat your venv, but it's nice to have
 setuptools
 wheel
-twine                           # The "new" way to publish to a PyPi repository. Has cryptoz!!!11
-# --- End suggested / "default" venv packages ---
-
+twine                           # The new way to publish to a PyPi repository
+yapf                            # Google recommended Python formatter (similar to clang-format)
+# --- End suggested / default venv packages --- 
 # --- Begin your own requirements ---
