@@ -4,6 +4,7 @@ There isn't much left, this tool is meant for one very narrow purpose: deploying
 
 But off the top of my head:
 
+* Rewrite the #! line in the packages/bin directory dynamically (is this necessary? I think not, we invoke with python ourselves don't we)
 * More Python 3 testing (I don't use Python3, I live in the 90's)
 * Rebuild packages and strip out twine, and one or two other things that just aren't needed
 * Better documentation / automation
