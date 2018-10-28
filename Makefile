@@ -39,9 +39,11 @@ COPY_FILES := etc packages pybuild Makefile venv
 PACKAGES := packages
 SYMLINKS := pip virtualenv easy_install
 PYPIRC := $(ROOT_DIR)/.pypirc.template
-CC := $(shell which gcc)
-TWINE = $(shell which twine)
-DEPENDENCIES = twine rm git cp mv mktemp dirname realpath
+CC = gcc  # An optional dependency, really. It depends on what packages you need
+TWINE = twine
+# Note, twine is a publish-time dependency. It should be in your
+# venv/requirements.txt already, you shouldn't remove it
+DEPENDENCIES = rm git cp mv mktemp dirname realpath
 REQUIREMENTS_TXT := $(ROOT_DIR)/venv/requirements.txt
 # If requirements.txt gets hosed, build a new, sane one
 REQUIREMENTS_TXT_CONTENT := "\
