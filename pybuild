@@ -213,7 +213,7 @@ def pip(pip_exe, ini, require, cwd, action='install'):
                 ffd.write(byte_output)
                 print('Writing stable, frozen requirements file to {}...'.
                       format(frozen_fullpath))
-                unused_utf8_output = byte_output.decode('utf-8').strip()
+                unused_utf8_output = byte_output.decode('utf-8').strip()  # unused
                 print('# ---- END ---- #')
         except subprocess.CalledProcessError as err:
             print('error invoking pip freeze {}'.format(err))
@@ -250,8 +250,7 @@ def main():
         action='store_true',
         dest='freeze',
         default=False,
-        help=
-        'Freeze versions in a venv for future stability (saves requirements.txt first)'
+        help='Freeze versions in a venv for future stability (saves requirements.txt first)'
     )
     optparser.add_option(
         '-d',
