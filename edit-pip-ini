@@ -1,0 +1,6 @@
+#!/bin/bash
+if [ -z $EDITOR ]; then
+  EDITOR=vi
+else
+  $EDITOR pybuild/etc/pip.ini
+fi
