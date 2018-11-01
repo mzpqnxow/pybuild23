@@ -1,4 +1,42 @@
-pylint
-pyflakes
-pycodestyle
-# flake8
+# Many of these packages pull in other linters and static analysis tools
+# as well, so check venv/bin after you build and see what's there. These
+# are mostly small modules and only add 30 seconds or so to your virtual
+#environment build time. But you're free to remove them of course.
+#
+# If you don't have a disciplined or consistent coding style and would like
+# one, but are too lazy to learn PEP8 or Google style, you should absolutely
+# use yapf. It is very simple, and akin to clang-format- it will *not* break
+# code, it will simply format your whitespace and such. You can have it use
+# different pre-built profiles, such as Google's recommended style, or (by default)
+# use PEP8
+#
+# If you have half a brain, you should be using pylint before every commit. It
+# will catch typos, bad practices (including ones that will sting later, or only
+# every once in a while (i.e. errors in Exception handlers that rarely, but sometimes
+# fire. USE IT !! `pylint mypackage/` or `pylint myfile.py` will spit out a nice
+# report. If certain things annoy you, you can configure it in .pylint or in setup.cfg
+#
+# You could also delete all of these if you'd like, they add about 20-30 seconds to
+# venv build. But aside from that there is no cost.
+#
+# Note that you *must* leave twine and setuptools if you want to publish to a local
+# or public PyPi repository, as setuptools packages your package and twine is the
+# *new* but *correct* way to publish the package after setuptools builds it.
+#
+# --- Begin suggested / default venv packages ---
+flake8				            # Wraps pyflakes, pycodestyle and mccabe
+pylint                          # linter
+pylama                          # linter
+seed-isort-config               # an isort companion
+bandit                          # Static analysis for security issues
+pyt                             # Static analysis for security issues, specifically webapps
+pydocstyle                      # Keep you on track with documentation style, per pydoc specs
+ipython                         # This will slow your build and bloat your venv, but it's nice to have
+yapf                            # Google recommended Python formatter, can format to PEP8, doesn't break code
+# --- Begin *required* venv packages, if you want to publish your package
+setuptools                      # Package using your setup.py
+wheel                           # Make wheels.. derp
+twine                           # The new way to publish to a PyPi repository
+# --- End suggested / default venv packages ---
+# --- Begin your own requirements for your venv here ---
+ansible
