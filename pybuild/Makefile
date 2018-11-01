@@ -37,15 +37,24 @@
 #
 # - AG, 2018
 #
+
+#
+# Any variable can be specified on the command-line except those
+# that are immutable (those using := instead of =)
+#
 ROOT_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
-PYTHON2 = `which python2`
-PYTHON3 = `which python3`
+# Change or specify on commandline the path to your system Python2 or Python3
+# MacOS needs this usually
+PYTHON2 = /usr/bin/python2
+PYTHON3 = /usr/bin/python3
+# Override PYTHON on the make commandline, i.e. make PYTHON=/stupid/macos/bin/python
+# Defaults to Python 2.x in a standard Linux system location (/usr/bin/python2)
 PYTHON = $(PYTHON2)
 RUNNING_USER = `whoami`
 VENV_DIR = $(ROOT_DIR)/venv/
 RM_RF := /bin/rm -rf
 PYBUILD_DIR := $(ROOT_DIR)
-PYBUILD_BIN := pybuild
+PYBUILD := $(ROOT_DIR)/pybuild
 BUILD_FILES := build dist *.egg-info
 PROJECT_FILES := etc packages pybuild .gitignore examples/Makefile
 COPY_FILES := etc packages pybuild examples/Makefile venv
@@ -59,14 +68,16 @@ CC := gcc
 
 all: python2
 
-
 python2: $(VENV_DIR) $(BACK_RELATIVE_ACTIVATE)
-	@echo "Executing pybuild (`basename $(PYBUILD)` -p $(PYTHON) $(VENV_DIR))"
+	@echo Python2 on its way up ...
+	@echo $(ROOT_DIR)
+	@echo "Executing `basename $(PYBUILD)` -p $(PYTHON) $(VENV_DIR)"
+	@echo cd $(ROOT_DIR) && $(PYBUILD) -p $(PYTHON) $(VENV_DIR)
 	@cd $(ROOT_DIR) && $(PYBUILD) -p $(PYTHON) $(VENV_DIR)
- 
+
 python3: $(VENV_DIR) $(BACK_RELATIVE_ACTIVATE)
 	@echo "Executing pybuild (`basename $(PYBUILD)` -p $(PYTHON3) $(VENV_DIR))"
-	@cd $(ROOT_DIR) && $(PYBUILD) -p $(PYTHON3) --python3 $(VENV_DIR)
+	@cd $(ROOT_DIR) && $(PYBUILD) -p $(PYTHON) --python3 $(VENV_DIR)
 
 $(BACK_RELATIVE_ACTIVATE):
 	@cd $(ROOT_DIR) && ln -sf $(RELATIVE_ACTIVATE) $(BACK_RELATIVE_ACTIVATE)
@@ -200,4 +211,4 @@ distclean:
 
 rebuild: clean all
 
-.PHONY:	python2 python3 rebuild rebuild2 rebuild3 clean pypirc release push distclean check_root
+.PHONY:	python2 python3 rebuild rebuild2 rebuild3 clean pypirc release push distclean check_root all
