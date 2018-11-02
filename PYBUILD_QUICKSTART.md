@@ -9,8 +9,10 @@ This version of pybuild gets out of your way and moves almost everything into a 
 
 The packages directory contains the latest versions of pip, virtualenv and setuptools and works on any system with Python >= 2.6 (including 3.x)
 
-```$ du -hs pybuild/packages
-18M	pybuild/packages```
+```
+$ du -hs pybuild/packages
+18M	pybuild/packages
+```
 
 This is the bootstrapping piece. This makes it so that you don't need to rely on your system version of pip and virtualenv. While it is not difficult to install them, it is nice to have a fixed version. The packages directory is really the crux of pybuild. If 18MB is too big for your standards, you are SOL, don't use pybuild. But keep in mind it only changes occasionally when either `setuptools`, `pip` or `virtualenv` release updated versions and I take the few moments to update it. Note that you will never need to commit this directory, it is added already and does not change regardless of what you change in your project. It is purely for bootstrapping conveniently on *any* machine
 
