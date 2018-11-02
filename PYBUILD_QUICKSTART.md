@@ -27,6 +27,8 @@ As before, you may simple type:
 * `make -f pybuild.mk rebuild` - Shortcut for make clean && make
 * `source activate` - Shortcut for `source pybuild/venv/bin/activate`
 
+NOTE: If you do not want to specify `-f pybuild.mk` all the time, rename it to `Makefile`. It is named this way to avoid messing up projects that already have their own `Makefile` in the root
+
 ## New things
 
 * `./edit-requirements` - Simple script to invoke `$EDITOR pybuild/venv/requirements.txt`
