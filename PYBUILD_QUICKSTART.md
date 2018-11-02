@@ -23,6 +23,7 @@ As before, you may simple type:
 * `make -f pybuild.mk` - To build a python2 virtual environment
 * `make -f pybuild.mk python3` - To deploy a python3 virtual environment
 * `make -f pybuild.mk new REPO=ssh://github.com/myname/myproject` - To "install" pybuild into an existing (preferably empty) project
+* `make -f pybuild.mak python3 PYTHON3=/opt/my/python3  # This may or may not work, try it out`
 * `make -f pybuild.mk clean` - To clean out a deployed virtual environment
 * `make -f pybuild.mk rebuild` - Shortcut for make clean && make
 * `source activate` - Shortcut for `source pybuild/venv/bin/activate`
