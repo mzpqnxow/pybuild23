@@ -17,6 +17,9 @@
 #            user with Artifactory. Only needed once on any given
 #            system, not per project, since pypirc is global to the user
 #            and not respected by virtualenv
+#  - expert: Remove docs in the root directory not required for deployment
+#            such as readme markdown files. You will have to manually commit
+#            after this
 #
 # Remember that PYTHON and PYTHON3 can be overridden on the command line
 # using `make PYTHON=/opt/my/python`. The same is true of the VENV_DIR
