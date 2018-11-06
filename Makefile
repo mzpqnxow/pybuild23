@@ -38,7 +38,7 @@ PROJECT_FILES := etc packages pybuild .gitignore Makefile
 COPY_FILES := etc packages pybuild Makefile venv
 PACKAGES := packages
 SYMLINKS := pip virtualenv easy_install
-DOCS := LICENSE LICENSE.md PYBUILD_README.md QUICKSTART.md TODO.md
+BEGINNER_FILES := LICENSE LICENSE.md PYBUILD_README.md QUICKSTART.md TODO.md edit-requirements.sh
 PYPIRC := $(ROOT_DIR)/.pypirc.template
 CC = gcc  # An optional dependency, really. It depends on what packages you need
 TWINE = twine
@@ -218,9 +218,10 @@ clean:
           rm -rf $(BUILD_FILES) && \
           rm -rf $$TMPDIR
 
-cleandocs:
-	@git rm -f $(DOCS) || /bin/true
-	@git commit -m 'removing docs' $(DOCS)  || /bin/true
+expert:
+	@git rm --ignore-unmatch -f $(BEGINNER_FILES) || /bin/true
+	@echo Removed non-critical docs files, commit now to persist changes in your repo
+	@echo
 
 distclean:
 	@rm -rf $(BUILD_FILES)
