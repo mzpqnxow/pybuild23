@@ -55,7 +55,7 @@ define REQUIREMENTS_TXT_CONTENT
 # Many of these packages pull in other linters and static analysis tools
 # as well, so check venv/bin after you build and see what's there. These
 # are mostly small modules and only add 30 seconds or so to your virtual
-#environment build time. But you're free to remove them of course
+# environment build time. But you're free to remove them of course
 # --- Begin suggested / default venv packages ---
 flake8				            # Wraps pyflakes, pycodestyle and mccabe
 pylint                          # linters..
@@ -151,7 +151,7 @@ python3: $(VENV_DIR) clean
 	@$(PYBUILD) -p $(PYTHON3) --python3 $(VENV_DIR)
 
 $(REQUIREMENTS_TXT): $(VENV_DIR)
-	@echo $(REQUIREMENTS_TXT_CONTENT) > $(REQUIREMENTS_TXT)
+	@echo "$$REQUIREMENTS_TXT_CONTENT" > $(REQUIREMENTS_TXT)
 
 $(VENV_DIR):
 	@echo 'WARN'; \
