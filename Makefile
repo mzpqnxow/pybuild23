@@ -61,13 +61,14 @@ flake8				            # Wraps pyflakes, pycodestyle and mccabe
 pylint                          # linters..
 pylama                          # linter..
 isort                           # cleans up imports, configurable
-seed-isort-config               #  an isort companion
+seed-isort-config               # an isort companion
 bandit                          # Static analysis for security issues
 pyt                             # Static analysis for security issues, specifically webaoos
 pydocstyle                      # Keep you on track with documentation style, per pydoc specs
 ipython                         # This will slow your build and bloat your venv, but it's nice to have
-setuptools\n\
-wheel\n\
+setuptools
+wheel
+yapf
 twine                           # The new way to publish to a PyPi repository
 # --- End suggested / default venv packages ---
 
@@ -110,6 +111,7 @@ PyBuild23 - https://github.com/mzpqnxow/pybuild23
     make new         | Add pybuild23 into an existing (preferably empty) git project using REPO=protocol://project.uri
     make pypirc      | Create a basic ~/.pypirc file from a template
     make release     | Publish a package with version autobump **only when using versioneer and setuptools**
+    make requirements| Automatically invoked if your venv/requirements.txt file gets nuked
     ...              | Read Makefile or documentation for more targets
  
     Edit venv/requirements.txt and commit to set virtual environment dependencies
