@@ -174,14 +174,14 @@ def pip(pip_exe, ini, require, cwd, action='install'):
     else:
         print('WARNING: none of %s exist, skipping pip' % (str(require)))
         return
-    try:
-        mkdir_p(join_path(CURDIR, 'logs'))  # Root of repo
-    except OSError as err:
-        if err.errno == EEXIST:
-            pass
-        else:
-            print(err)
-            raise
+    # try:
+    #     mkdir_p(join_path(CURDIR, 'logs'))  # Root of repo
+    # except OSError as err:
+    #     if err.errno == EEXIST:
+    #         pass
+    #     else:
+    #         print(err)
+    #         raise
 
     pip_arguments = {
         'install': [  # Perform an install
