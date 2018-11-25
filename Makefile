@@ -49,53 +49,94 @@ TWINE = twine
 # venv/requirements.txt already, you shouldn't remove it
 DEPENDENCIES = rm git cp mv mktemp dirname realpath
 REQUIREMENTS_TXT := $(ROOT_DIR)/venv/requirements.txt
+
 # If requirements.txt gets hosed, build a new, sane one
-REQUIREMENTS_TXT_CONTENT := "\
-\# Many of these packages pull in other linters and static analysis tools\n\
-\# as well, so check venv/bin after you build and see what's there. These\n\
-\# are mostly small modules and only add 30 seconds or so to your virtual\n\
-\#environment build time. But you're free to remove them of course.\n\
-\# --- Begin suggested / "default" venv packages ---\n\
-flake8				            \# Wraps pyflakes, pycodestyle and mccabe\n\
-pylint                          \# linters..\n\
-pylama                          \# linter..\n\
-isort                           \# cleans up imports, configurable\n\
-seed-isort-config               \#  an isort companion\n\
-bandit                          \# Static analysis for security issues\n\
-pyt                             \# Static analysis for security issues, specifically webaoos\n\
-pydocstyle                      \# Keep you on track with documentation style, per pydoc specs\n\
-ipython                         \# This will slow your build and bloat your venv, but it's nice to have\n\
+define REQUIREMENTS_TXT_CONTENT
+# Many of these packages pull in other linters and static analysis tools
+# as well, so check venv/bin after you build and see what's there. These
+# are mostly small modules and only add 30 seconds or so to your virtual
+#environment build time. But you're free to remove them of course
+# --- Begin suggested / default venv packages ---
+flake8				            # Wraps pyflakes, pycodestyle and mccabe
+pylint                          # linters..
+pylama                          # linter..
+isort                           # cleans up imports, configurable
+seed-isort-config               #  an isort companion
+bandit                          # Static analysis for security issues
+pyt                             # Static analysis for security issues, specifically webaoos
+pydocstyle                      # Keep you on track with documentation style, per pydoc specs
+ipython                         # This will slow your build and bloat your venv, but it's nice to have
 setuptools\n\
 wheel\n\
-twine                           \# The "new" way to publish to a PyPi repository\n\
-\# --- End suggested / "default" venv packages ---\n\
-\n\
-\# --- Begin your own requirements ---\n\
-"
+twine                           # The new way to publish to a PyPi repository
+# --- End suggested / default venv packages ---
+
+# --- Begin your own requirements ---
+endef
+export REQUIREMENTS_TXT_CONTENT
+
+define PYPIRC_MESSAGE
+-------- Credentialed PyPirc Installation --------
+
+Follow the prompts to install a ~/.pypirc file that allows you to publish to an Artifactory PyPi
+WARN: This is a global configuration file for your username
+NOTICE: Any existing ~/.pypirc will be backed up in ~/.pypirc.bak.*
+-------- PyPirc Crdentials --------
+
+Please enter your credentials and a PyPirc file will be created
+SECURITY: The file will be stored mode 0600 in ~/.pypirc, private from other users
+
+endef
+export PYPIRC_MESSAGE
+
+define PROJECT_HELP_MSG
+PyBuild23 - https://github.com/mzpqnxow/pybuild23
+
+    Automatically deploy Python Virtual Environments for production applications without any
+    system or local user dependencies (i.e. pip, virtualenv, setuptools)
+
+    All dependencies to bootstrap a virtualenv are included so there is no need to use get-pip.py
+    or to use your system package manager to install pip or virtualenv
+
+    For deployment, use the python2, python3, clean and/or rebuild targets. Other less common
+    targets are documented below
+
+    Command / Target | Action
+    -----------------|----------------------------------------------------------
+    make python2     | Create a Python 2.6 or 2.7 based virtual environment
+    make python3     | Create a Python 3.x based virtual environment
+    make clean       | Clean the current virtual environment
+    make rebuild     | Clean and rebuild a 2.6 or 2.7 based virtual environment
+    make new         | Add pybuild23 into an existing (preferably empty) git project using REPO=protocol://project.uri
+    make pypirc      | Create a basic ~/.pypirc file from a template
+    make release     | Publish a package with version autobump **only when using versioneer and setuptools**
+    ...              | Read Makefile or documentation for more targets
+ 
+    Edit venv/requirements.txt and commit to set virtual environment dependencies
+    Edit etc/pip.ini for a custom environment (if using Artifactory or other special PyPi server)
+    Use the release target if using git and versioneer and with a configured ~/.pypirc
+
+    --- QUICK START: SET REQUIREMENTS FOR YOUR PROJECT ---
+      $$ vim venv/requirements.txt
+
+    --- QUICK START: DEPLOYMENT ---
+      $$ make (python2|python3)
+      $$ source venv/bin/activate
+
+    --- QUICK START: SOURCE CONTROL ---
+      $$ git add . && git commit -m 'Add pybuild23 base' .
+      NOTE: The .gitignore file will ensure only the required pybuild23 files are checked in (~15MB)
+
+endef
+export PROJECT_HELP_MSG
 
 K := $(foreach exec,$(DEPENDENCIES),\
-        $(if $(shell which $(exec)),some string,$(error "No $(exec) in PATH)))
+        $(if $(shell which $(exec)),some string,$(error "No $(exec) in PATH")))
+
+export PROJECT_HELP_MSG
 
 all:
-	@echo '----------|'
-	@echo 'PyBuild23 |'
-	@echo '------------------------------------------------------------------------'	
-	@echo 'Please use a target such as python2, python3, new, clean, pypirc, etc ..'	
-	@echo '------------------------------------------------------------------------'
-	@echo 'python2   | Create a Python 2.6 or 2.7 based virtual environment'
-	@echo 'python3   | Create a Python 3.x based virtual environment'
-	@echo 'clean     | Clean the current virtual environment'
-	@echo 'rebuild   | Clean and rebuild a 2.6 or 2.7 based virtual environment'
-	@echo 'new       | Add pybuild23 into an existing (preferably empty) git project using REPO=protocol://project.uri'
-	@echo 'pypirc    | Create a basic ~/.pypirc file from a template'
-	@echo 'release   | Publish a package when using versioneer and setuptools (autobump)'	
-	@echo '...       | Read Makefile or documentation for more targets'
-	@echo '------------------------------------------------------------------------'
-	@echo 
-	@echo '** Edit venv/requirements.txt and commit to set virtual environment dependencies' 
-	@echo '** Edit etc/pip.ini for a custom environment (if using Artifactory or other "special" PyPi server)'
-	@echo '** Use the "release" target if using git and versioneer and with a configured ~/.pypirc' 
-	@echo 
+	@echo "$$PROJECT_HELP_MSG"
 
 requirements: $(REQUIREMENTS_TXT)
 
@@ -111,16 +152,16 @@ $(REQUIREMENTS_TXT): $(VENV_DIR)
 	@echo $(REQUIREMENTS_TXT_CONTENT) > $(REQUIREMENTS_TXT)
 
 $(VENV_DIR):
-	@echo "----"
-	@echo "WARN: VENV_DIR does not exist, creating it with no requirements.txt"
-	@echo "----"
-	@mkdir -p $(VENV_DIR)
-	@echo <<"EOF" \
+	@echo 'WARN'; \
+	echo 'WARN: VENV_DIR is missing, making directory\nWARN'; \
+	mkdir -p $(VENV_DIR)
 
 
 #
-# This target is meant for use with versioneer !!
-# To install versioneer, see the github.com page
+# This target is meant for use with versioneer only!!
+# To install versioneer, see https://github.com/warner/python-versioneer
+# It is very simple to install, use pep440. Once configured, you can
+# use this target and greatly simplify publishing to PyPi or Artifactory!!
 #
 # By default, make release will:
 #  - tag your current branch
@@ -162,16 +203,7 @@ freeze:
           git add -f `ls -lr $(VENV_DIR)/codefreeze-* | tail -1 | awk '{print $$9}'`
 
 pypirc:
-	@echo '-------- Credentialed PyPirc Installation --------'
-	@echo ''
-	@echo 'Follow the prompts to install a ~/.pypirc file that allows you to publish to an Artifactory PyPi'
-	@echo 'WARN: This is a global configuration file for your username ($$USER)'
-	@echo 'NOTICE: Any existing ~/.pypirc will be backed up in ~/.pypirc.bak.*'
-	@echo '-------- PyPirc Crdentials --------'
-	@echo
-	@echo 'Please enter your credentials and a PyPirc file will be created'
-	@echo 'SECURITY: The file will be stored mode 0600 in ~/.pypirc, private from other users :>'
-	@echo
+	@echo "$$PYPIRC_MESSAGE"
 	@if [ -e "~/.pypirc" ]; then cp -f ~/.pypirc ~/.pypirc.bak.$(date +%s) 2>/dev/null || /bin/true; fi 
 	@echo -n 'Please enter username: ' && \
 	read user && \
@@ -213,13 +245,18 @@ new:
 
 clean:
 	@TMPDIR=`mktemp -d` && \
-	  cp venv/*requirements*.txt $$TMPDIR/ && \
-          rm -rf $(VENV_DIR) && \
-          mkdir $(VENV_DIR) && \
-          mv $$TMPDIR/*requirements*.txt $(VENV_DIR)/ && \
-          rm -f $(PACKAGES)/{$(SYMLINKS)} && \
-          rm -rf $(BUILD_FILES) && \
-          rm -rf $$TMPDIR
+	  cp -f venv/*requirements*.txt $$TMPDIR/ 2>/dev/null || \
+	  ( \
+	  	echo 'WARN\nWARN: requirements.txt is missing, rebuilding with boilerplate requirements.txt\nWARN'; \
+	  	echo "$$REQUIREMENTS_TXT_CONTENT" > $(REQUIREMENTS_TXT) \
+	  ) && \
+	  cp -f venv/*requirements*.txt $$TMPDIR/ ; \
+	  rm -rf $(VENV_DIR) && \
+      mkdir $(VENV_DIR) && \
+      mv $$TMPDIR/*requirements*.txt $(VENV_DIR)/ && \
+      rm -f $(PACKAGES)/{$(SYMLINKS)} && \
+      rm -rf $(BUILD_FILES) && \
+      rm -rf $$TMPDIR
 
 expert:
 	@git rm --ignore-unmatch -f $(BEGINNER_FILES) || /bin/true
