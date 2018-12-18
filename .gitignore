@@ -84,7 +84,7 @@ target/
 
 # virtualenv
 .venv
-venv/,!venv/codefreeze-requirements.txt*,venv/requirements.txt
+venv/,!venv/codefreeze-requirements.txt*,!venv/requirements.txt,!venv/constraints.txt
 venv/
 ENV/
 
