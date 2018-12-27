@@ -15,6 +15,7 @@ Please see LICENSE or LICENSE.md for terms
 """
 from __future__ import print_function
 from __future__ import unicode_literals
+from ConfigParser import ConfigParser, NoOptionError, NoSectionError
 import subprocess
 import multiprocessing
 from os import mkdir, getuid, getcwd, environ, chdir, symlink, remove, unlink
@@ -31,8 +32,9 @@ from os.path import (isdir, exists, sep as DIRSEP)
 CURDIR = cwd = dirname(abspath(__file__))
 # Basic required directories for a virtualenv
 VENV_DIRS = set(['lib', 'bin', 'include'])
+PIP_CONF = 'pip.conf'
 # Taken from etc/
-INI_FILES = set(['.interactive', 'pip.conf'])
+INI_FILES = set(['.interactive', PIP_CONF])
 # Put your dependencies in these files in your empty venv directory
 PKG_REQUIREMENT_FILEPATHS = set(['requirements.txt', 'etc/requirements.txt'])
 PKG_CONSTRAINT_FILEPATHS = set(['constraints.txt', 'etc/constraints.txt'])
@@ -45,8 +47,41 @@ PYVERSION = 2
 CPU_COUNT = multiprocessing.cpu_count()
 
 
+def pip_proxy():
+    """Parse pip.conf to get proxy settings to pass on to easy_install
+
+    This is a little bit controversial because we make some decisions
+    without the consent of the user. We set parallelism options in
+    case native code comes into play and we honor pip.ini proxy
+    settings as well as proxy settings in the environment. The reason
+    for honoring pip.ini proxy settings (manually) is to work around
+    a somewhat rare (but not theoretical) bug where easy_install is
+    invoked during pip. If pip has a proxy set in pip.ini, it does
+    not get honored by easy_install, causing dependency fetches to
+    fail in environments with hard requirements for a proxy. The
+    best example of this is pandas, which is a pretty common package.
+
+    To reproduce failure, set your proxy in pip.ini in an environment
+    where a proxy is *REQUIRED* and try to pip install pandas. It will
+    bomb out, saying it can't get numpy.
+
+    Rather than making the user specify the proxy in pip.ini AND in the
+    environment, we read pip.ini and set it in the environment for
+    easy_install to consume.
+
+    This approach fixes that.
+    """
+    config = ConfigParser()
+    config.read(PIP_CONF)
+    try:
+        proxy = config.get('global', 'proxy')
+    except (NoSectionError, NoOptionError):
+        proxy = None
+    return proxy
+
+
 def basic_env(cwd):
-    """ Provide a clean environment with bare essentials """
+    """Provide a clean environment with bare essentials"""
     global PYVERSION
     pent = pwd.getpwuid(getuid())
     env = dict()
@@ -56,15 +91,23 @@ def basic_env(cwd):
     env['SHELL'] = pent.pw_shell
     env['LOGNAME'] = pent.pw_name
     env['PWD'] = getcwd()
-    # One can hope that these environment variables make it to a compiled native code build that
-    # uses GNU make. Pretty unlikely to work, and even less likely to occur, but doesn't hurt.
-    # Maybe numpy or pandas or cython or some such thing can benefit?
+    # One can hope that these environment variables make it to a compiled
+    # native code build that uses GNU make. Pretty unlikely to work, and
+    # even less likely to occur, but doesn't hurt. Maybe numpy or pandas or
+    # cython or some such thing can benefit.. well, not pandas/cython, yet,
+    # but maybe some day ...
     parallelism_count = '{}'.format(
         (CPU_COUNT)) if CPU_COUNT == 1 else '{}'.format(CPU_COUNT - 1)
     # Hope it counts, especially for big packages
     env['MAKEFLAGS'] = '-j{}'.format(parallelism_count)
     env['CONCURRENCY_LEVEL'] = parallelism_count
-    for key in ('PATH', 'TERM', 'MAIL'):
+
+    proxy = pip_proxy()
+    if proxy:  # Note: this overrides the environment with pip config
+        environ['http_proxy'] = proxy
+        environ['https_proxy'] = proxy
+
+    for key in ('PATH', 'TERM', 'MAIL', 'http_proxy', 'https_proxy'):
         if key in environ:
             env[key] = environ[key]
     return env
