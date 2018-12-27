@@ -49,6 +49,7 @@ TWINE = twine
 # venv/requirements.txt already, you shouldn't remove it
 DEPENDENCIES = rm git cp mv mktemp dirname realpath
 REQUIREMENTS_TXT := $(ROOT_DIR)/venv/requirements.txt
+CONSTRAINTS_TXT := $(ROOT_DIR)/venv/constraints.txt
 
 # If requirements.txt gets hosed, build a new, sane one
 define REQUIREMENTS_TXT_CONTENT
@@ -247,15 +248,15 @@ new:
 
 clean:
 	@TMPDIR=`mktemp -d` && \
-	  cp -f venv/*requirements*.txt $$TMPDIR/ 2>/dev/null || \
+	  cp -f venv/*requirements*.txt venv/constraints.txt $$TMPDIR/ 2>/dev/null || \
 	  ( \
 	  	echo 'WARN\nWARN: requirements.txt is missing, rebuilding with boilerplate requirements.txt\nWARN'; \
 	  	echo "$$REQUIREMENTS_TXT_CONTENT" > $(REQUIREMENTS_TXT) \
 	  ) && \
-	  cp -f venv/*requirements*.txt $$TMPDIR/ ; \
+	  cp -f venv/*requirements*.txt venv/constraints.txt $$TMPDIR/ ; \
 	  rm -rf $(VENV_DIR) && \
       mkdir $(VENV_DIR) && \
-      mv $$TMPDIR/*requirements*.txt $(VENV_DIR)/ && \
+      mv $$TMPDIR/*requirements*.txt $$TMPDIR/constraints.txt $(VENV_DIR)/ && \
       rm -f $(PACKAGES)/{$(SYMLINKS)} && \
       rm -rf $(BUILD_FILES) && \
       rm -rf $$TMPDIR

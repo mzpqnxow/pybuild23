@@ -35,6 +35,7 @@ VENV_DIRS = set(['lib', 'bin', 'include'])
 INI_FILES = set(['.interactive', 'pip.conf'])
 # Put your dependencies in these files in your empty venv directory
 PKG_REQUIREMENT_FILEPATHS = set(['requirements.txt', 'etc/requirements.txt'])
+PKG_CONSTRAINT_FILEPATHS = set(['constraints.txt', 'etc/constraints.txt'])
 
 # By default, use the 'system python'
 DEFAULT_VENV_BASE_PYTHON2 = '/usr/bin/python2'
@@ -160,7 +161,7 @@ def mkdir_p(dirname):
                 mkdir(path_stack)
 
 
-def pip(pip_exe, ini, require, cwd, action='install'):
+def pip(pip_exe, ini, require, constrain, cwd, action='install'):
     """
         Set 'PIP_CONFIG_FILE' environment variable to ini, then call
         exe as pip using the require file.
@@ -174,19 +175,19 @@ def pip(pip_exe, ini, require, cwd, action='install'):
     else:
         print('WARNING: none of %s exist, skipping pip' % (str(require)))
         return
-    # try:
-    #     mkdir_p(join_path(CURDIR, 'logs'))  # Root of repo
-    # except OSError as err:
-    #     if err.errno == EEXIST:
-    #         pass
-    #     else:
-    #         print(err)
-    #         raise
+
+    cst = None
+    for cst in constrain:
+        if exists(req):
+            break
+    else:
+        print('WARNING: none of %s exist, skipping pip' % (str(constrain)))
+        return
 
     pip_arguments = {
         'install': [  # Perform an install
             pip_exe, 'install', '--compile', '--progress-bar', 'off', '--pre',
-            '-I', '-r', req
+            '-I', '-r', req, '-c', cst
         ],
         'freeze': [  # Freeze versions in a built venv
             pip_exe, 'freeze', '--no-cache-dir', '-l', '-r', req
@@ -306,6 +307,7 @@ def main():
                 pip('bin/pip',
                     ini_load_path,
                     PKG_REQUIREMENT_FILEPATHS,
+                    PKG_CONSTRAINT_FILEPATHS,
                     cwd,
                     action='freeze')
 
@@ -324,6 +326,7 @@ def main():
             pip('bin/pip',
                 ini_load_path,
                 PKG_REQUIREMENT_FILEPATHS,
+                PKG_CONSTRAINT_FILEPATHS,
                 cwd,
                 action='install')
 
