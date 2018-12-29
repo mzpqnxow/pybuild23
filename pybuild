@@ -80,7 +80,7 @@ def pip_proxy():
     return proxy
 
 
-def basic_env(cwd):
+def basic_env(cwd, parallel=True, easy_install_proxy=True):
     """Provide a clean environment with bare essentials"""
     global PYVERSION
     pent = pwd.getpwuid(getuid())
@@ -93,19 +93,27 @@ def basic_env(cwd):
     env['PWD'] = getcwd()
     # One can hope that these environment variables make it to a compiled
     # native code build that uses GNU make. Pretty unlikely to work, and
-    # even less likely to occur, but doesn't hurt. Maybe numpy or pandas or
-    # cython or some such thing can benefit.. well, not pandas/cython, yet,
-    # but maybe some day ...
-    parallelism_count = '{}'.format(
-        (CPU_COUNT)) if CPU_COUNT == 1 else '{}'.format(CPU_COUNT - 1)
-    # Hope it counts, especially for big packages
-    env['MAKEFLAGS'] = '-j{}'.format(parallelism_count)
-    env['CONCURRENCY_LEVEL'] = parallelism_count
+    # even less likely to occur, but doesn't hurt. Maybe cython or pandas
+    # or some such thing can benefit.. well, not pandas/cython, yet,
+    # but maybe some day. Pandas currently takes 7 minutes to build from
+    # source on "unsupported" platforms, but can not at this time benefit
+    # from parallelism
+    #
+    # https://github.com/pandas-dev/pandas/issues/24344
+    #
+    if parallel is True:
+        parallelism_count = '{}'.format(
+            (CPU_COUNT)) if CPU_COUNT == 1 else '{}'.format(CPU_COUNT - 1)
+        env['MAKEFLAGS'] = '-j{}'.format(parallelism_count)
+        env['CONCURRENCY_LEVEL'] = parallelism_count
 
-    proxy = pip_proxy()
-    if proxy:  # Note: this overrides the environment with pip config
-        environ['http_proxy'] = proxy
-        environ['https_proxy'] = proxy
+    if easy_install_proxy is True:
+        # For edgecases where pip invokes easy_install and proxy is only
+        # set in pip.ini, not in the environment
+        proxy = pip_proxy()
+        if proxy:  # Note: this overrides the environment with pip config
+            environ['http_proxy'] = proxy
+            environ['https_proxy'] = proxy
 
     for key in ('PATH', 'TERM', 'MAIL', 'http_proxy', 'https_proxy'):
         if key in environ:
@@ -204,7 +212,7 @@ def mkdir_p(dirname):
                 mkdir(path_stack)
 
 
-def pip(pip_exe, ini, require, constrain, cwd, action='install'):
+def pip(pip_exe, ini, require, constrain, cwd, action='install', parallel=True, easy_install_proxy=True):
     """
         Set 'PIP_CONFIG_FILE' environment variable to ini, then call
         exe as pip using the require file.
@@ -244,7 +252,12 @@ def pip(pip_exe, ini, require, constrain, cwd, action='install'):
         # and not installed at all, requiring manually adding with pip after the
         # venv is built
         try:
-            sp.check_call(pip_arguments[action], env=basic_env(cwd))
+            sp.check_call(
+                pip_arguments[action],
+                env=basic_env(
+                    cwd,
+                    parallel=parallel,
+                    easy_install_proxy=easy_install_proxy))
         except Exception as err:
             print('error invoking pip install {}'.format(err))
             raise
@@ -257,7 +270,6 @@ def pip(pip_exe, ini, require, constrain, cwd, action='install'):
                 ffd.write(byte_output)
                 print('Writing stable, frozen requirements file to {}...'.
                       format(frozen_fullpath))
-                unused_utf8_output = byte_output.decode('utf-8').strip()  # unused
                 print('# ---- END ---- #')
         except subprocess.CalledProcessError as err:
             print('error invoking pip freeze {}'.format(err))
@@ -282,13 +294,27 @@ def main():
     optparser = OptionParser('usage: %prog [options] <destination>')
 
     optparser.add_option(
+        '-P',
+        '--disable-parallel',
+        action='store_false',
+        default=True,
+        dest='parallel',
+        help='Attempt parallel builds for native packages')
+    optparser.add_option(
         '-p',
         '--python',
         action='store',
         type='string',
         dest='python',
         default=DEFAULT_VENV_BASE_PYTHON,
-        help='specify the full path to python')
+        help='Specify the full path to python')
+    optparser.add_option(
+        '-e',
+        '--disable-easy-install-proxy',
+        action='store_false',
+        dest='easy_install_proxy',
+        default=True,
+        help='Set http(s)_proxy in environment for easy_install to inherit')
     optparser.add_option(
         '--freeze',
         action='store_true',
@@ -371,6 +397,8 @@ def main():
                 PKG_REQUIREMENT_FILEPATHS,
                 PKG_CONSTRAINT_FILEPATHS,
                 cwd,
+                parallel=args.parallel,
+                easy_install_proxy=args.easy_install_proxy,
                 action='install')
 
     except RuntimeError as err:
