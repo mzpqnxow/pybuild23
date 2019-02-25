@@ -160,7 +160,8 @@ $(VENV_DIR):
 	mkdir -p $(VENV_DIR)
 
 doc:
-	pandoc  README.md -o README.pdf --from=markdown -V geometry:margin=.4in --toc --highlight-style=espresso
+	pandoc  README.md -o README.pdf "-fmarkdown-implicit_figures -o" --from=markdown -V geometry:margin=.4in --toc --highlight-style=espresso
+	pandoc  QUICKSTART.md -o QUICKSTART.pdf -fmarkdown-implicit_figures --from=markdown -V geometry:margin=.4in --toc --highlight-style=espresso
 
 #
 # This target is meant for use with versioneer only!!
