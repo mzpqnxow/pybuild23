@@ -188,7 +188,7 @@ else
 	$(eval f := 3)
 endif
 	git tag -a `echo $(v) | awk -F. -v OFS=. -v f=$(f) '{ $$f++ } 1'` && \
-    python setup.py sdist || (rm -rf dist/ ;  echo Failed to build sdist ; /bin/false)
+     python setup.py sdist || (rm -rf dist/ ;  echo Failed to build sdist ; /bin/false)
 	$(TWINE) upload -r local dist/* --verbose || rm -rf $(BUILD_FILES)
 	rm -rf $(BUILD_FILES)
 	git commit -am "Bumped to version `echo $(v) | awk -F. -v OFS=. -v f=$(f) '{ $$f++ } 1'`" || /bin/true
@@ -202,11 +202,11 @@ publish: $(PIP_CONF)
 push: publish
 
 freeze:
-	$(PYBUILD) --freeze $(VENV_DIR) \
-          && echo '' && \
-          echo "Froze virtual environment requirements in venv/:" && \
-          echo `ls -lr $(VENV_DIR)/codefreeze-* | tail -1` && \
-          git add -f `ls -lr $(VENV_DIR)/codefreeze-* | tail -1 | awk '{print $$9}'`
+	@$(PYBUILD) --freeze $(VENV_DIR) && \
+		echo && \
+		echo && \
+		echo You probably want to git add $$(realpath $$(ls -lr $(VENV_DIR)/frozen-requirements-* | tail -1 | awk '{print $$9}'))
+		echo
 
 pypirc:
 	@echo "$$PYPIRC_MESSAGE"
@@ -274,4 +274,4 @@ distclean:
 
 rebuild: clean all
 
-.PHONY:	python2 python3 rebuild clean pypirc publish distclean freeze
+.PHONY:	python2 python3 rebuild clean pypirc publish distclean freeze doc

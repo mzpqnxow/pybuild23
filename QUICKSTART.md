@@ -1,60 +1,44 @@
-## Get started right away without understanding anything (!)
+# Quickstart
 
-Skip the README and get started
+You can get started right away without understanding anything by reading this short document, but you will lose out on some of the more "advanced" features
 
-## First...
+So... skip the README and get started. Unfortunately this documentation is pretty lacking, but here it goes
 
-Try the -devel branch ... the layout might be less overwhelming to the eye, and less confusing
+## First, Consider Using The Development Branch And Submitting Issues
 
-## Starting a fresh project
+Try the `devel` branch ... the layout might be less overwhelming to the eye, and less confusing and it eliminates the possibility of file collisions with your project
+
+## Starting A Fresh Project
 
 If you are starting with an empty project and nothing yet in source control, try this
 
-### Python 3 based virtualenv
+### Starting From Scratch
 
-```
-$ $EDITOR venv/requirements.txt [add your dependencies into the file]
-$ make && source venv/bin/activatec
+Assuming you have *no code whatsoever yet*, get started by just cloning the `pybuild` repository, removing the `.git` directory and then beginning your development. Update `venv/project-requirements.txt` as you go.
+
+```$ $EDITOR venv/project-requirements.txt [add your dependencies into the file]
+$ make [python2|python3] && source venv/bin/activate
 $ rm -rf .git
-$ [start your development and use git as usual]
-```
+$ [start your development and use git as usual]```
 
-
-### Python 2 based virtualenv (default)
-
-```
-$ $EDITOR venv/requirements.txt [add your dependencies into the file]
-$ make && source venv/bin/activate
-$ rm -rf .git
-$ [start your development and use git as usual]
-```
-
-## If you want to "install" pybuild23 into an existing (preferably freshly created) git repository
+## Starting From An Empty `git` Repository
 
 First, you should be careful. If your repository already has files in it and there is a name collision with pybuild23 files (i.e. venv/, Makefile, etc.) you could end up with things overwritten. You should really start with a fresh repository, else manually copy pybuild23 into the existing repository
 
-OK, with that out of the way...
-
-```
-$ make new REPO=ssh://github.com/yourname/yourproject
+```$ make new REPO=ssh://github.com/yourname/yourproject
 $ cd ../yourproject
-$ $EDITOR venv/requirements.txt [add your dependencies into the file]
-```
+$ EDITOR venv/project-requirements.txt [add your dependencies into the file]```
 
 ## If you want to "install" pybuild23 into an existing project that is already checked out on your local filesystem
 
-```
-$ cd /your/checkedout/repo
+```$ cd /your/checkedout/repo
 $ git clone https://github.com/mzpqnxow/pybuild23
-$ cp -r pybuild23/{venv,Makefile,packages,etc} .
+$ cp -r pybuild23/{.gitignore,.style.yapf,.isort.cfg,setup.cfg,.pypirc.template,venv,Makefile,packages,etc} .
 $ rm -rf pybuild23
 $ git add venv Makefile packages etc
 $ git commit venv Makefile packages etc
-$ git push
-``` 
+$ git push```
 
 ## If you have a project deployed via pybuild23 and you want to save the versions via pip freeze in a dated file
 
-```
-$ make freeze
-```
+`$ make freeze`

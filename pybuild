@@ -279,8 +279,8 @@ def pip(pip_exe, ini, require, constrain, cwd, action='install', parallel=True, 
 def frozen_requirements_fullpath(req):
     base_requirements_path = (join_path(dirname(realpath(req))))
     mkdir_p(base_requirements_path)
-    today_yyyymmdd = datetime.today().strftime('%Y-%m-%d.%s')
-    frozen_filename = 'codefreeze-requirements.txt.frozen-deplay-{}'.format(
+    today_yyyymmdd = datetime.today().strftime('%Y-%m-%d.%S')
+    frozen_filename = 'frozen-requirements-{}'.format(
         today_yyyymmdd)
     frozen_fullpath = '{}/{}'.format(base_requirements_path, frozen_filename)
     return frozen_fullpath
@@ -346,7 +346,7 @@ def main():
 
     (args, venv_dest) = optparser.parse_args()
 
-    if len(venv_dest) != 1:
+    if not venv_dest:
         optparser.error('must specify destination')
 
     if args.use_python3:
@@ -379,6 +379,7 @@ def main():
                     PKG_CONSTRAINT_FILEPATHS,
                     cwd,
                     action='freeze')
+                exit(0)
 
             files_exist = [exists(entry) for entry in VENV_DIRS | INI_FILES]
             if not all(files_exist):
@@ -403,7 +404,7 @@ def main():
 
     except RuntimeError as err:
         optparser.error(
-            '%s Destination virtualenv directory and Python intrpreter must both exist !!'
+            '%s Destination virtualenv directory and Python interpreter must both exist !!'
             % (str(err)))
 
 

@@ -5,7 +5,6 @@ __pycache__/
 
 # C extensions
 *.so
-
 # Distribution / packaging
 .Python
 packages/bin/virtualenv
@@ -84,8 +83,7 @@ target/
 
 # virtualenv
 .venv
-venv/,!venv/codefreeze-requirements.txt*,!venv/requirements.txt,!venv/constraints.txt,!venv/requirements-base.txt,!venv/requirements-project.txt
-venv/
+venv/,!venv/frozen-requirements-*,!venv/requirements.txt,!venv/constraints.txt,!venv/requirements-base.txt,!venv/requirements-project.txt
 ENV/
 
 
