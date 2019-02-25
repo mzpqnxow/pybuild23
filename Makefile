@@ -159,6 +159,8 @@ $(VENV_DIR):
 	echo 'WARN: VENV_DIR is missing, making directory\nWARN'; \
 	mkdir -p $(VENV_DIR)
 
+doc:
+	pandoc  README.md -o README.pdf --from=markdown -V geometry:margin=.4in --toc --highlight-style=espresso
 
 #
 # This target is meant for use with versioneer only!!
