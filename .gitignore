@@ -83,7 +83,8 @@ target/
 
 # virtualenv
 .venv
-venv/,!venv/frozen-requirements-*,!venv/requirements.txt,!venv/constraints.txt,!venv/requirements-base.txt,!venv/requirements-project.txt
+!venv/frozen-requirements-*,!venv/requirements.txt,!venv/constraints.txt,!venv/requirements-base.txt,!venv/requirements-project.txt
+venv/
 ENV/
 
 
