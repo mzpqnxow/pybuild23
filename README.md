@@ -93,8 +93,10 @@ Very, very useful when doing active development on internal libraries. Using `ma
 
 Example file after `make freeze` of a deployed application:
 
-```10:22:41 › ls -l venv/frozen-requirements-*            
--rw-r--r-- 1 debian debian 1180 Feb 25 10:22 venv/frozen-requirements-2019-02-25.36```
+```
+10:22:41 › ls -l venv/frozen-requirements-*            
+-rw-r--r-- 1 debian debian 1180 Feb 25 10:22 venv/frozen-requirements-2019-02-25.36
+```
 
 Make sure you use this feature at the appropriate time as you don't want to memorialize broken deployment files. If you have problems building with newly developed libraries or your application itself, you can replace your current `requirements-project.txt` with the frozen one to reproduce a prior deployment while you fix any regressions you have introduced
 
