@@ -31,8 +31,12 @@
 # - AG, 2018
 #
 ROOT_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
-PYTHON = /usr/bin/python
-PYTHON3 = /usr/bin/python3
+# Use `make SYSBIN=~/.my/usr/bin` if you have some special install
+SYSBIN = /usr/bin
+PYTHON = python
+PYTHON2 = $(SYSBIN)/python2
+PYTHON3 = $(SYSBIN)/python3
+
 VENV_DIR = venv/
 RM_RF := /bin/rm -rf
 PYBUILD := ./pybuild
@@ -40,6 +44,7 @@ BUILD_FILES := build dist *.egg-info
 PROJECT_FILES := etc packages pybuild .gitignore Makefile
 COPY_FILES := etc packages pybuild Makefile venv
 PACKAGES := packages
+PACKAGES_BIN := $(PACKAGES)/bin
 SYMLINKS := pip virtualenv easy_install
 BEGINNER_FILES := LICENSE LICENSE.md PYBUILD_README.md QUICKSTART.md TODO.md edit-requirements.sh
 PYPIRC := $(ROOT_DIR)/.pypirc.template
@@ -144,12 +149,12 @@ all:
 requirements: $(REQUIREMENTS_TXT)
 
 python2: $(VENV_DIR) clean
-	@echo "Executing pybuild (`basename $(PYBUILD)` -p $(PYTHON) $(VENV_DIR))"
-	@$(PYBUILD) -p $(PYTHON) $(VENV_DIR)
+	@echo "Executing pybuild (`basename $(PYBUILD)` -p $(PYTHON2) $(VENV_DIR))"
+	@$(PYBUILD) -p $(PYTHON2) $(VENV_DIR)
 
 python3: $(VENV_DIR) clean
 	@echo "Executing pybuild (`basename $(PYBUILD)` -p $(PYTHON3) $(VENV_DIR))"
-	@$(PYBUILD) -p $(PYTHON3) --python3 $(VENV_DIR)
+	$(PYBUILD) -p $(PYTHON3) --python3 $(VENV_DIR)
 
 $(REQUIREMENTS_TXT): $(VENV_DIR)
 	@echo "$$REQUIREMENTS_TXT_CONTENT" > $(REQUIREMENTS_TXT)
@@ -195,6 +200,11 @@ endif
 	git push --tags
 
 publish: $(PIP_CONF)
+ifndef VIRTUAL_ENV
+	$(error The publish target is meant only for use in an activated virtual environmnent)
+else ifeq (,$(wildcard ./setup.py))
+	$(error You must have a setup.py file in the project root if you want to publish)
+endif
 	$(PYTHON) setup.py sdist upload -r local
 	$(TWINE) upload -r local dist/* --verbose || rm -rf $(BUILD_FILES)
 
@@ -249,7 +259,12 @@ new:
          echo "    $ git log" && \
          echo
 
-clean:
+
+clean_links:
+	@for linkpath in $(SYMLINKS); do rm -f $(PACKAGES_BIN)/$$linkpath; done
+
+# This should be done more cleanly in Make language, not a giant shell blob ...
+clean: clean_links
 	@TMPDIR=`mktemp -d` && \
 	  cp -f venv/*requirements*.txt venv/constraints.txt $$TMPDIR/ 2>/dev/null || \
 	  ( \
@@ -260,7 +275,6 @@ clean:
 	  rm -rf $(VENV_DIR) && \
       mkdir $(VENV_DIR) && \
       mv $$TMPDIR/*requirements*.txt $$TMPDIR/constraints.txt $(VENV_DIR)/ && \
-      rm -f $(PACKAGES)/{$(SYMLINKS)} && \
       rm -rf $(BUILD_FILES) && \
       rm -rf $$TMPDIR
 
@@ -274,4 +288,4 @@ distclean:
 
 rebuild: clean all
 
-.PHONY:	python2 python3 rebuild clean pypirc publish distclean freeze doc
+.PHONY:	python2 python3 rebuild clean pypirc publish distclean freeze doc clean_links

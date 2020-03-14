@@ -1,4 +1,7 @@
 # Byte-compiled / optimized / DLL files
+packages/bin/pip
+packages/bin/virtualenv
+packages/bin/easy_install
 __pycache__/
 *.py[cod]
 *$py.class

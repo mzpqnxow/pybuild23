@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 Build a Python virtual environment without setuptools, virtualenv and
@@ -7,15 +7,15 @@ which for some reason do not have the required dependencies available
 
 Support Python 2.6, Python 2.7, and Python 3
 See Makefile ...
+TODO(AG): Split into 2.x branch and 3.x branch. 2.x is moribund and
+          it is not worth all of the complexity in this file and the
+          the Makefile to maintain both when 2.x is barely used
 
 Copyright (C) 2018
     Adam Greene <copyright@mzpqnxow.com>
     David Marker <dave@freedave.net>
 Please see LICENSE or LICENSE.md for terms
 """
-from __future__ import print_function
-from __future__ import unicode_literals
-from ConfigParser import ConfigParser, NoOptionError, NoSectionError
 import subprocess
 import multiprocessing
 from os import mkdir, getuid, getcwd, environ, chdir, symlink, remove, unlink
@@ -23,11 +23,23 @@ from os.path import dirname, realpath, join as join_path, abspath
 from datetime import datetime
 import pwd
 import shutil
-import subprocess as sp
 from contextlib import contextmanager
 from errno import EEXIST, ENOENT, ENOTEMPTY
 from time import sleep
 from os.path import (isdir, exists, sep as DIRSEP)
+import sys
+
+RUNNING_PYTHON_VERSION = sys.version_info[0]
+
+assert RUNNING_PYTHON_VERSION in (2, 3)
+
+if RUNNING_PYTHON_VERSION == 3:
+    from configparser import ConfigParser, NoOptionError, NoSectionError
+elif RUNNING_PYTHON_VERSION == 2:
+    from ConfigParser import ConfigParser, NoOptionError, NoSectionError
+else:
+    raise NotImplementedError('Unsupported Python major version, only 2 and 3 supported!')
+
 
 CURDIR = cwd = dirname(abspath(__file__))
 # Basic required directories for a virtualenv
@@ -140,7 +152,7 @@ def force_symlink(file1, file2):
     """ Be forceful about creating a symlink """
     try:
         symlink(file1, file2)
-    except OSError, err:
+    except OSError as err:
         if err.errno == EEXIST:
             remove(file2)
             symlink(file1, file2)
@@ -183,8 +195,10 @@ def invoke_virtualenv(virtualenv_exe, python, pipini, interactive, cwd):
     shutil.copy(interactive, '.interactive')
 
     try:
-        sp.check_call([python, virtualenv_exe, '--no-site-packages', '.'],
-                      env=basic_env(cwd))
+        # subprocess.check_call([python, virtualenv_exe, '-p', python, '--no-site-packages', '.'],
+        # --no-site-packages is now the default
+        subprocess.check_call([python, virtualenv_exe, '-p', python, '.'],
+                              env=basic_env(cwd))
     except OSError as err:
         if err.errno == ENOENT:
             raise RuntimeError('Python %s does not exist !!' % python)
@@ -252,7 +266,7 @@ def pip(pip_exe, ini, require, constrain, cwd, action='install', parallel=True, 
         # and not installed at all, requiring manually adding with pip after the
         # venv is built
         try:
-            sp.check_call(
+            subprocess.check_call(
                 pip_arguments[action],
                 env=basic_env(
                     cwd,
@@ -263,7 +277,7 @@ def pip(pip_exe, ini, require, constrain, cwd, action='install', parallel=True, 
             raise
     elif action == 'freeze':
         try:
-            byte_output = sp.check_output(
+            byte_output = subprocess.check_output(
                 pip_arguments[action], env=basic_env(cwd))
             frozen_fullpath = frozen_requirements_fullpath(req)
             with open(frozen_fullpath, 'wb') as ffd:
@@ -357,8 +371,9 @@ def main():
         PYVERSION = 2
 
     for appname in ('virtualenv', 'easy_install', 'pip'):
-        force_symlink('{0}{1}'.format(appname, PYVERSION),
-                      join_path('packages', 'bin', '{0}'.format(appname)))
+        link_dst = '{0}{1}'.format(appname, PYVERSION)
+        link_src = join_path('packages', 'bin', '{0}'.format(appname))
+        force_symlink(link_dst, link_src)
 
     cwd = dirname(abspath(__file__))
 
