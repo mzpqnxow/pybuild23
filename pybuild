@@ -48,8 +48,8 @@ PIP_CONF = 'pip.conf'
 # Taken from etc/
 INI_FILES = set(['.interactive', PIP_CONF])
 # Put your dependencies in these files in your empty venv directory
-PKG_REQUIREMENT_FILEPATHS = set(['requirements.txt', 'etc/requirements.txt'])
-PKG_CONSTRAINT_FILEPATHS = set(['constraints.txt', 'etc/constraints.txt'])
+PKG_REQUIREMENT_FILEPATHS = set(['requirements.txt'])
+PKG_CONSTRAINT_FILEPATHS = set(['constraints.txt'])
 
 # By default, use the 'system python'
 DEFAULT_VENV_BASE_PYTHON2 = '/usr/bin/python2'
@@ -246,8 +246,9 @@ def pip(pip_exe, ini, require, constrain, cwd, action='install', parallel=True, 
         if exists(req):
             break
     else:
-        print('WARNING: none of %s exist, skipping pip' % (str(constrain)))
-        return
+        cst = '/dev/null'
+    #    print('WARNING: none of %s exist, skipping pip' % (str(constrain)))
+    #    return
 
     pip_arguments = {
         'install': [  # Perform an install
