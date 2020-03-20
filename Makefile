@@ -271,7 +271,7 @@ new:
          echo
 
 
-clean_links:
+clean_links: .FORCE
 	@for linkpath in $(SYMLINKS); do rm -f $(PACKAGES_BIN)/$$linkpath; done
 
 # This should be done more cleanly in Make language, not a giant shell blob ...
@@ -287,7 +287,7 @@ clean: .FORCE clean_links
       mkdir $(VENV_DIR) && \
       mv $$TMPDIR/*requirements*.txt $$TMPDIR/constraints.txt $(VENV_DIR)/ && \
       rm -rf $(BUILD_FILES) && \
-      rm -rf $$TMPDIR
+      rm -rf $$TMPDIR && ls -lrt $(VENV_DIR)
 
 expert:
 	@git rm --ignore-unmatch -f $(BEGINNER_FILES) || /bin/true
@@ -299,6 +299,6 @@ distclean:
 
 rebuild: clean all
 
-.PHONY:	python2 python3 rebuild clean pypirc publish distclean freeze doc clean_links requirements constraints
+.PHONY:	python2 python3 rebuild pypirc publish distclean freeze doc requirements constraints
 
 .FORCE:
