@@ -82,6 +82,11 @@ twine                           # The new way to publish to a PyPi repository
 endef
 export REQUIREMENTS_TXT_CONTENT
 
+# If requirements.txt gets hosed, build a new, sane one
+define CONSTRAINTS_TXT_CONTENT
+endef
+export CONSTRAINTS_TXT_CONTENT
+
 define PYPIRC_MESSAGE
 -------- Credentialed PyPirc Installation --------
 
@@ -118,6 +123,7 @@ PyBuild23 - https://github.com/mzpqnxow/pybuild23
     make pypirc      | Create a basic ~/.pypirc file from a template
     make release     | Publish a package with version autobump **only when using versioneer and setuptools**
     make requirements| Automatically invoked if your venv/requirements.txt file gets nuked
+    make constraints | Automatically invoked if your venv/constraints.txt file gets nuked
     ...              | Read Makefile or documentation for more targets
  
     Edit venv/requirements.txt and commit to set virtual environment dependencies
@@ -147,6 +153,7 @@ all:
 	@echo "$$PROJECT_HELP_MSG"
 
 requirements: $(REQUIREMENTS_TXT)
+constraints: $(CONSTRAINTS_TXT)
 
 python2: $(VENV_DIR) clean
 	@echo "Executing pybuild (`basename $(PYBUILD)` -p $(PYTHON2) $(VENV_DIR))"
@@ -158,6 +165,9 @@ python3: $(VENV_DIR) clean
 
 $(REQUIREMENTS_TXT): $(VENV_DIR)
 	@echo "$$REQUIREMENTS_TXT_CONTENT" > $(REQUIREMENTS_TXT)
+
+$(CONSTRAINTS_TXT): $(VENV_DIR)
+	@echo "$$CONSTRAINTS_TXT_CONTENT" > $(CONSTRAINTS_TXT)
 
 $(VENV_DIR):
 	@echo 'WARN'; \
@@ -245,6 +255,7 @@ new:
          export REPO_VENV=$$REPO_BASENAME/$(VENV_DIR) && \
          mkdir -p $$REPO_VENV && \
          cp $(VENV_DIR)/requirements.txt $$REPO_VENV && \
+         cp $(VENV_DIR)/constraints.txt $$REPO_VENV && \
          mv $$REPO_BASENAME ../ ; x=$$PWD; cd ../$$REPO_BASENAME; \
          git add . && \
          git commit -m "Installing pybuild environment" . && \
@@ -264,7 +275,7 @@ clean_links:
 	@for linkpath in $(SYMLINKS); do rm -f $(PACKAGES_BIN)/$$linkpath; done
 
 # This should be done more cleanly in Make language, not a giant shell blob ...
-clean: clean_links
+clean: .FORCE clean_links
 	@TMPDIR=`mktemp -d` && \
 	  cp -f venv/*requirements*.txt venv/constraints.txt $$TMPDIR/ 2>/dev/null || \
 	  ( \
@@ -288,4 +299,6 @@ distclean:
 
 rebuild: clean all
 
-.PHONY:	python2 python3 rebuild clean pypirc publish distclean freeze doc clean_links
+.PHONY:	python2 python3 rebuild clean pypirc publish distclean freeze doc clean_links requirements constraints
+
+.FORCE:
