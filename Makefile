@@ -1,12 +1,17 @@
 #
-# Universal pybuild for Python2 and Python3 on Linux
+# Universal Python deployment tool for Python2 and Python3 on Linux
+# Includes pip, virtualenv, setuptools as well as socks proxy support
+# This allows `make python2` or `make python3` to work on any UNIX,
+# Linux or MacOS machine, regardless of whether it has any of these
+# dependencies installed in your local directory or system-wide
+#
 # MacOS works, with some tweaks (use PYTHON=/path/to/system/python)
+# Also, see the issue with the lack of a `realpath` command (seriously?)
+#
 # Supported Targets:
-#  - all: Default target, build a python2 virtual environment in venv/
-#         Customize and commit venv/requirements.txt to your repo
-#         Activate as usual with source venv/bin/activate
-#  - python2: Same as `all` target
-#  - python3: Same as python2, except builds a python3 virtual environment
+#  - all: Print a usage menu
+#  - python2: Build for python2
+#  - python3: Build for python3
 #  - venv: Create a missing venv/ dir, you shouldn't ever need this
 #  - clean: Clean up the virtual environment without touching your code
 #           Everything in venv/ will be deleted except requirements.txt
@@ -21,7 +26,7 @@
 #            such as readme markdown files. You will have to manually commit
 #            after this
 #
-# Remember that PYTHON and PYTHON3 can be overridden on the command line
+# Remember that PYTHON, PYTHON2 and PYTHON3 can be overridden on the command line
 # using `make PYTHON=/opt/my/python`. The same is true of the VENV_DIR
 # but there's really no reason to change the venv dir IMO.
 #
@@ -31,9 +36,12 @@
 # - AG, 2018
 #
 ROOT_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
-# Use `make SYSBIN=~/.my/usr/bin` if you have some special install
-SYSBIN = /usr/bin
 PYTHON = python
+# Use `make SYSBIN=~/.my/usr/bin` if you have some special install
+# Alternately, don't rely on SYSBIN and let `which` or `command -v`
+# find the SYSBIN, example:
+# SYSBIN = $(shell dirname $(which $(PYTHON)
+SYSBIN = /usr/bin
 PYTHON2 = $(SYSBIN)/python2
 PYTHON3 = $(SYSBIN)/python3
 
@@ -192,6 +200,10 @@ doc:
 #  - Publish your Python package to your PyPi repository with the new tag
 #  - Perform a git push on any committed changes you have
 #  - Perform a git push --tags to add the new tag to git
+#
+# If you are currently not publishing to a PyPi repository, you
+# should comment out the $(TWINE) line. If you *are* publishing, make
+# you set up your pypirc (use `make pypirc` to produce a template)
 #
 release:
 	$(eval v := $(shell git describe --tags --abbrev=0 | sed -Ee 's/^v|-.*//'))
