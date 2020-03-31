@@ -1,8 +1,10 @@
 # pybuild23
 
-Streamline Python venv deployment w/Python 2.6, 2.7 and 3.x using a simple make command. Common dependencies (`pip`, `virtualenv`, `setuptools`) included, all UNIX operating systems and Linux distributions supported going back to Solaris, 9, AIX 5.1, RHEL 5.2, etc. Mac is probably supported, but you may need to change the path in the `Makefile` to point to the bizarro path to the system Python.
+Streamline Python venv deployment w/Python 2.6, 2.7 and 3.7 using a simple make command. Common dependencies (`pip`, `virtualenv`, `setuptools`) included, all UNIX operating systems and Linux distributions supported going back to Solaris, 9, AIX 5.1, RHEL 5.2, etc. Mac is probably supported, but you may need to change the path in the `Makefile` to point to the bizarro path to the system Python.
 
 This tool is *not* meant to "manage" virtual environments, it is meant to *deploy projects*. It allows for quick, repeatable builds using just a simple `make` command. It works on many systems, including those with only Python 2.6. It is meant to also work when your system does not have `pip`, `setuptools`, `virtualenv`, etc. which can save you a step or two. It is really best for quick deployment
+
+**WARN**: This will not work out of the box on Python 3.5. A 3.5 branch may be introduced, or changes may be made to support both in one branch. Just use 3.7. A lot of packages are starting to have >= 3.7 requirements anyway. Don't fight it!
 
 ## How It Works
 
