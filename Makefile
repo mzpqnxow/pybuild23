@@ -10,7 +10,6 @@
 #
 # Supported Targets:
 #  - all: Print a usage menu
-#  - python2: Build for python2
 #  - python3: Build for python3
 #  - venv: Create a missing venv/ dir, you shouldn't ever need this
 #  - clean: Clean up the virtual environment without touching your code
@@ -42,7 +41,6 @@ PYTHON = python
 # find the SYSBIN, example:
 # SYSBIN = $(shell dirname $(which $(PYTHON)
 SYSBIN = /usr/bin
-PYTHON2 = $(SYSBIN)/python2
 PYTHON3 = $(SYSBIN)/python3
 
 VENV_DIR = venv/
@@ -123,7 +121,6 @@ PyBuild23 - https://github.com/mzpqnxow/pybuild23
 
     Command / Target | Action
     -----------------|----------------------------------------------------------
-    make python2     | Create a Python 2.6 or 2.7 based virtual environment
     make python3     | Create a Python 3.x based virtual environment
     make clean       | Clean the current virtual environment
     make rebuild     | Clean and rebuild a 2.6 or 2.7 based virtual environment
@@ -163,13 +160,9 @@ all:
 requirements: $(REQUIREMENTS_TXT)
 constraints: $(CONSTRAINTS_TXT)
 
-python2: $(VENV_DIR) clean
-	@echo "Executing pybuild (`basename $(PYBUILD)` -p $(PYTHON2) $(VENV_DIR))"
-	@$(PYBUILD) -p $(PYTHON2) $(VENV_DIR)
-
 python3: $(VENV_DIR) clean
 	@echo "Executing pybuild (`basename $(PYBUILD)` -p $(PYTHON3) $(VENV_DIR))"
-	$(PYBUILD) -p $(PYTHON3) --python3 $(VENV_DIR)
+	$(PYBUILD) -p $(PYTHON3) $(VENV_DIR)
 
 $(REQUIREMENTS_TXT): $(VENV_DIR)
 	@echo "$$REQUIREMENTS_TXT_CONTENT" > $(REQUIREMENTS_TXT)
@@ -282,12 +275,8 @@ new:
          echo "    $ git log" && \
          echo
 
-
-clean_links: .FORCE
-	@for linkpath in $(SYMLINKS); do rm -f $(PACKAGES_BIN)/$$linkpath; done
-
 # This should be done more cleanly in Make language, not a giant shell blob ...
-clean: .FORCE clean_links
+clean: .FORCE
 	@TMPDIR=`mktemp -d` && \
 	  cp -f venv/*requirements*.txt venv/constraints.txt $$TMPDIR/ 2>/dev/null || \
 	  ( \

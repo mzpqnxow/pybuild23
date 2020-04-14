@@ -1,7 +1,4 @@
 # Byte-compiled / optimized / DLL files
-packages/bin/pip
-packages/bin/virtualenv
-packages/bin/easy_install
 __pycache__/
 *.py[cod]
 *$py.class
@@ -10,11 +7,6 @@ __pycache__/
 *.so
 # Distribution / packaging
 .Python
-packages/bin/virtualenv
-packages/bin/pip
-packages/bin/easy_install
-packages/bin/pkginfo
-packages/bin/twine
 build/
 develop-eggs/
 dist/

@@ -3,19 +3,19 @@
 # are mostly small modules and only add 30 seconds or so to your virtual
 # environment build time. But you're free to remove them of course
 # --- Begin suggested / default venv packages ---
-flake8				            # Wraps pyflakes, pycodestyle and mccabe
-pylint                          # linters..
-pylama                          # linter..
-isort                           # cleans up imports, configurable
-seed-isort-config               # an isort companion
-bandit                          # Static analysis for security issues
-pyt                             # Static analysis for security issues, specifically webaoos
-pydocstyle                      # Keep you on track with documentation style, per pydoc specs
-ipython                         # This will slow your build and bloat your venv, but it's nice to have
-setuptools
-wheel
-yapf
-twine                           # The new way to publish to a PyPi repository
+# flake8				            # Wraps pyflakes, pycodestyle and mccabe
+# pylint                          # linters..
+# pylama                          # linter..
+# isort                           # cleans up imports, configurable
+# seed-isort-config               # an isort companion
+# bandit                          # Static analysis for security issues
+# pyt                             # Static analysis for security issues, specifically webaoos
+# pydocstyle                      # Keep you on track with documentation style, per pydoc specs
+# ipython                         # This will slow your build and bloat your venv, but it's nice to have
+# setuptools
+# wheel
+# yapf
+# twine                           # The new way to publish to a PyPi repository
 # --- End suggested / default venv packages ---
 
 # --- Begin your own requirements ---

@@ -28,18 +28,13 @@ from errno import EEXIST, ENOENT, ENOTEMPTY
 from time import sleep
 from os.path import (isdir, exists, sep as DIRSEP)
 import sys
+from distlib.compat import which
 
 RUNNING_PYTHON_VERSION = sys.version_info[0]
 
-assert RUNNING_PYTHON_VERSION in (2, 3)
+assert RUNNING_PYTHON_VERSION == 3
 
-if RUNNING_PYTHON_VERSION == 3:
-    from configparser import ConfigParser, NoOptionError, NoSectionError
-elif RUNNING_PYTHON_VERSION == 2:
-    from ConfigParser import ConfigParser, NoOptionError, NoSectionError
-else:
-    raise NotImplementedError('Unsupported Python major version, only 2 and 3 supported!')
-
+from configparser import ConfigParser, NoOptionError, NoSectionError
 
 CURDIR = cwd = dirname(abspath(__file__))
 # Basic required directories for a virtualenv
@@ -52,12 +47,9 @@ PKG_REQUIREMENT_FILEPATHS = set(['requirements.txt'])
 PKG_CONSTRAINT_FILEPATHS = set(['constraints.txt'])
 
 # By default, use the 'system python'
-DEFAULT_VENV_BASE_PYTHON2 = '/usr/bin/python2'
-DEFAULT_VENV_BASE_PYTHON3 = '/usr/bin/python3'
-DEFAULT_VENV_BASE_PYTHON = DEFAULT_VENV_BASE_PYTHON2
-PYVERSION = 2
+DEFAULT_VENV_BASE_PYTHON = which('python3')
 CPU_COUNT = multiprocessing.cpu_count()
-
+PYVERSION = 3
 
 def pip_proxy():
     """Parse pip.conf to get proxy settings to pass on to easy_install
@@ -247,8 +239,6 @@ def pip(pip_exe, ini, require, constrain, cwd, action='install', parallel=True, 
             break
     else:
         cst = '/dev/null'
-    #    print('WARNING: none of %s exist, skipping pip' % (str(constrain)))
-    #    return
 
     pip_arguments = {
         'install': [  # Perform an install
@@ -303,7 +293,7 @@ def frozen_requirements_fullpath(req):
 
 def main():
     """Let it begin"""
-    # For 2.[67] compatibility
+    # For 2.6 compatibility.. but we are off of 2.6 now, so why? ... deal with this later
     from optparse import OptionParser
     global DEFAULT_VENV_BASE_PYTHON, PYVERSION
     optparser = OptionParser('usage: %prog [options] <destination>')
@@ -351,30 +341,11 @@ def main():
         dest='inifile',
         default='pip.ini',
         help='The pip.ini file to use from the etc/ directory')
-    optparser.add_option(
-        '-3',
-        '--python3',
-        action='store_true',
-        dest='use_python3',
-        default=False,
-        help='Build a Python 3 virtual environment instead of Python 2')
 
     (args, venv_dest) = optparser.parse_args()
 
     if not venv_dest:
         optparser.error('must specify destination')
-
-    if args.use_python3:
-        DEFAULT_VENV_BASE_PYTHON = DEFAULT_VENV_BASE_PYTHON3
-        PYVERSION = 3
-    else:
-        DEFAULT_VENV_BASE_PYTHON = DEFAULT_VENV_BASE_PYTHON2
-        PYVERSION = 2
-
-    for appname in ('virtualenv', 'easy_install', 'pip'):
-        link_dst = '{0}{1}'.format(appname, PYVERSION)
-        link_src = join_path('packages', 'bin', '{0}'.format(appname))
-        force_symlink(link_dst, link_src)
 
     cwd = dirname(abspath(__file__))
 
@@ -409,7 +380,7 @@ def main():
                                   ini_load_path, interactive_load_path, cwd)
 
             # always try to install the requirements.
-            pip('bin/pip',
+            pip('bin/pip3',
                 ini_load_path,
                 PKG_REQUIREMENT_FILEPATHS,
                 PKG_CONSTRAINT_FILEPATHS,
