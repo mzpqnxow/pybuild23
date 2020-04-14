@@ -35,13 +35,8 @@
 # - AG, 2018
 #
 ROOT_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
-PYTHON = python
-# Use `make SYSBIN=~/.my/usr/bin` if you have some special install
-# Alternately, don't rely on SYSBIN and let `which` or `command -v`
-# find the SYSBIN, example:
-# SYSBIN = $(shell dirname $(which $(PYTHON)
-SYSBIN = /usr/bin
-PYTHON3 = $(SYSBIN)/python3
+PYTHON3 = $(shell which python3)
+PYTHON = $(PYTHON3)
 
 VENV_DIR = venv/
 RM_RF := /bin/rm -rf
@@ -51,7 +46,6 @@ PROJECT_FILES := etc packages pybuild .gitignore Makefile
 COPY_FILES := etc packages pybuild Makefile venv
 PACKAGES := packages
 PACKAGES_BIN := $(PACKAGES)/bin
-SYMLINKS := pip virtualenv easy_install
 BEGINNER_FILES := LICENSE LICENSE.md PYBUILD_README.md QUICKSTART.md TODO.md edit-requirements.sh
 PYPIRC := $(ROOT_DIR)/.pypirc.template
 CC = gcc  # An optional dependency, really. It depends on what packages you need

@@ -140,16 +140,6 @@ def pushd(directory):
     chdir(cwd)
 
 
-def force_symlink(file1, file2):
-    """ Be forceful about creating a symlink """
-    try:
-        symlink(file1, file2)
-    except OSError as err:
-        if err.errno == EEXIST:
-            remove(file2)
-            symlink(file1, file2)
-
-
 def destroy(explain, vdirs, cfg):
     """ Destroy a previously created virtual environment """
     print('%s: destroying %s' % (explain, ('/ '.join(vdirs) + '/')))
@@ -189,7 +179,7 @@ def invoke_virtualenv(virtualenv_exe, python, pipini, interactive, cwd):
     try:
         # subprocess.check_call([python, virtualenv_exe, '-p', python, '--no-site-packages', '.'],
         # --no-site-packages is now the default
-        subprocess.check_call([python, virtualenv_exe, '--clear-app-data', '-p', python, '.'],
+        subprocess.check_call([python, virtualenv_exe, '--no-site-packages', '-p', python, '.'],
                               env=basic_env(cwd))
     except OSError as err:
         if err.errno == ENOENT:
