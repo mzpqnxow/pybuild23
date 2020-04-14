@@ -1,12 +1,8 @@
-#!/opt/python3.5/bin/python3.5
-# EASY-INSTALL-ENTRY-SCRIPT: 'wheel==0.34.2','console_scripts','wheel'
-__requires__ = 'wheel==0.34.2'
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 import re
 import sys
-from pkg_resources import load_entry_point
-
+from wheel.cli import main
 if __name__ == '__main__':
-    sys.argv[0] = re.sub(r'(-script\.pyw?|\.exe)?$', '', sys.argv[0])
-    sys.exit(
-        load_entry_point('wheel==0.34.2', 'console_scripts', 'wheel')()
-    )
+    sys.argv[0] = re.sub(r'(-script\.pyw|\.exe)?$', '', sys.argv[0])
+    sys.exit(main())
