@@ -28,7 +28,7 @@ from errno import EEXIST, ENOENT, ENOTEMPTY
 from time import sleep
 from os.path import (isdir, exists, sep as DIRSEP)
 import sys
-from distlib.compat import which
+from shutil import which
 
 RUNNING_PYTHON_VERSION = sys.version_info[0]
 
