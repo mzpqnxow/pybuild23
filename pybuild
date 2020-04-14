@@ -179,7 +179,7 @@ def invoke_virtualenv(virtualenv_exe, python, pipini, interactive, cwd):
     try:
         # subprocess.check_call([python, virtualenv_exe, '-p', python, '--no-site-packages', '.'],
         # --no-site-packages is now the default
-        subprocess.check_call([python, virtualenv_exe, '--no-site-packages', '-p', python, '.'],
+        subprocess.check_call([python, virtualenv_exe, '-p', python, '.'],
                               env=basic_env(cwd))
     except OSError as err:
         if err.errno == ENOENT:
