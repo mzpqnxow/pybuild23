@@ -1,3 +1,9 @@
+# NOTE: pybuild23 is now DEPRECATED in favor of pyboot3
+
+Please switch your projects over to [pyboot3](https://github.com/mzpqnxow/pyboot3) for a much more featureful and cleaner experience. Support for Python2 has been dropped since it has been officially deprecated
+
+If you insist on continuing to use pybuild23, do so at your own risk
+
 # pybuild23
 
 Streamline Python venv deployment w/Python 2.6, 2.7 and 3.7 using a simple make command. Common dependencies (`pip`, `virtualenv`, `setuptools`) included, all UNIX operating systems and Linux distributions supported going back to Solaris, 9, AIX 5.1, RHEL 5.2, etc. Mac is probably supported, but you may need to change the path in the `Makefile` to point to the bizarro path to the system Python.
